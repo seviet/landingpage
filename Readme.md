@@ -2,6 +2,6 @@
 
 ### Azure
 
-- [RefArch](https://github.com/c0-ops/landingpage/azure/refarch-main.md)
+- [RefArch](https://github.com/c0-ops/landingpage/blob/master/azure/refarch-main.md)
 
 ### GCP
