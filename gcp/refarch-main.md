@@ -4,7 +4,7 @@ __Summary__:  Customer0 Reference Architectures are utilized by Pivotal's Custom
 
 *__This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied__*.
 
-Validation Key Info (October 2014)
+Validation Key Info (October 2016)
 
 | PCF Products Validated        | Version                   |
 | ----------------------------- |:-------------------------:|
@@ -22,7 +22,7 @@ Insert Architectural Overview Image here:![alt text](https://d1fto35gcfffzn.clou
 
 ### IaaS Architecture
 
-Insert IaaS Specific Object/Architecture Image here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "IaaS Arch Image")
+Insert IaaS Specific Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview.png)
 
 Explain GCP logical Constructs required by PCF
 
@@ -57,9 +57,14 @@ Explain Base Architecture
 
 Variants to Base Architecture
 
+Insert Variant Image(s):![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
+
+  - Private DNS (Non Google Zone Managed) (Pipeline Link)
   - Private RFC versus Public IP Addresses & NAT (Pipeline Link)
   - IaaS Specific VPN Architecture
   - GSLB Setup for multiple (Pipeline Link)
+
+  
 
 #Pivotal Customer0 Deployment Pipeline
 
@@ -80,3 +85,7 @@ Pipeline Job/Tasks
 ```
 Links to Relevant Pipeline Code
 ```
+
+#PCF on GCP Links
+
+[https://cloud.google.com/solutions/cloud-foundry-on-gcp](https://cloud.google.com/solutions/cloud-foundry-on-gcp)
