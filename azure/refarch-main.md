@@ -1,6 +1,6 @@
 #Pivotal Customer0 Azure Reference Architecture
 
-Summary:  What we are & aren't providing with this ref arch.    No warranty implied or explicit!!!!
+Summary:  What we are & aren't providing with this ref arch.    No warranty implied or expressed!
 
 Validation Key Info (Date last Updated)
 
@@ -8,19 +8,23 @@ Validation Key Info (Date last Updated)
 | ----------------------------- |:-------------------------:|
 | PCF Ops Manager               | 1.8.?	(Link to Pipelines) |
 | Elastic Runtime               | ?                         |
-| Rabbit                        | ? 		                    |
-| Metrics                       | ? 	                       |
-| Rabbit                        | ? 		                    |
+| future                        | ? 		                    |
+| future                        | ? 	                      |
+| future                        | ? 		                    |
 
 ### Pivotal Customer0 Reference Architecture Overview
 
-Insert Architectural Overview Image here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Complete Solution Arch Image")
+  ![](PCF-Azure-RefArch-Customer0.png)
 
--explain high level constructs
+This model shows a single PCF deployment in a single Azure Resource Group. For HA deployment, create and deploy same on a second Resource Group.
+
+The reference approach is to create a Resource Group, populate it with a virtual network and draw three subnets from it. These three subnets will be used in a manner simliar to other Customer[0] architectures, where one is used for infrastructure, one for apps and one for service tiles.
 
 ### IaaS Architecture
 
-Insert IaaS Specific Object/Architecture Image here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "IaaS Arch Image")
+Insert IaaS Specific Object/Architecture Image here:
+
+  ![]Image
 
 Explain logical Constructs required by PCF on the given IaaS (Azure)
   - Service Accounts
@@ -32,7 +36,9 @@ Explain logical Constructs required by PCF on the given IaaS (Azure)
 
 ### Network Topology
 
-Insert IaaS Specific Network Image here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
+Insert IaaS Specific Network Image here:
+
+  ![]Image
 
 Explain
 
