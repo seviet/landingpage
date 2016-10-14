@@ -5,3 +5,5 @@
 - [RefArch](https://github.com/c0-ops/landingpage/blob/master/azure/refarch-main.md)
 
 ### GCP
+
+- [RefArch](https://github.com/c0-ops/landingpage/blob/master/gcp/refarch-main.md)
