@@ -16,13 +16,13 @@ Validation Key Info (October 2016)
 
 ### Pivotal Customer0 Reference Architecture Overview
 
-Insert Architectural Overview Image here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Complete Solution Arch Image")
+Insert IaaS Specific Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview.png)
+
 
 -explain high level constructs
 
 ### IaaS Architecture
 
-Insert IaaS Specific Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview.png)
 
 Explain GCP logical Constructs required by PCF
 
