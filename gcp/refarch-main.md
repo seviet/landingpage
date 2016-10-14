@@ -25,7 +25,7 @@ PCF on GCP requires the following logical Constructs:
 
 ##### Project/Region/Zones
 
-A Cloud Foundry Deployment will exist within a single Project.  It will be located in a single zone and should distribute Cloud Foundry Jobs/Instances across 3 GCP zones to ensure a high degree of availability.  Each GCP Zone will map to a Cloud Foundry Availability Zone
+A Cloud Foundry Deployment will exist within a single Project.  It will be located in a single GCP region and should distribute Cloud Foundry Jobs/Instances across 3 GCP zones to ensure a high degree of availability.  Each GCP Zone will map to a Cloud Foundry Availability Zone
 
 ##### Google Cloud API
 
