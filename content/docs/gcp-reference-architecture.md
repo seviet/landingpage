@@ -14,45 +14,69 @@ Validation Key Info (October 2016)
 
 | PCF Products Validated        | Version                   |
 | ----------------------------- |:-------------------------:|
-| PCF Ops Manager               | 1.8.?	(Link to Pipelines) |
-| Elastic Runtime               | ?                         |
-| Rabbit                        | ? 		                    |
-| Metrics                       | ? 	                       |
-| Rabbit                        | ? 		                    |
+| PCF Ops Manager               | 1.8.#	(Latest) |
+| Elastic Runtime               | 1.8.# (Latest) |
+| Rabbit                        | 1.7.# (Latest) |
+| Metrics                       | 1.1.# (Latest) |
+| Mysql                         | 1.7.# (Latest) |
+| Spring Cloud Services         | 1.2.# (Latest) |
 
-### Pivotal Customer0 Reference Architecture Overview
+## IaaS Overview
 
 Insert IaaS Specific Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview.png)
 
 
--explain high level constructs
 
-### IaaS Architecture
+PCF on GCP requires the following logical Constructs:
+
+##### Project/Region/Zones
+
+A Cloud Foundry Deployment will exist within a single Project.  It will be located in a single GCP region and should distribute Cloud Foundry Jobs/Instances across 3 GCP zones to ensure a high degree of availability.  Each GCP Zone will map to a Cloud Foundry Availability Zone
+
+##### Google Cloud API
+
+Pivotal Ops Manager & BOSH will utilize the Google Compute Engine API, it must be enabled on a new Google Cloud subscription as it is not enabled by default
 
 
-Explain GCP logical Constructs required by PCF
+#####Quotas
 
-- Project/Zones
-- Google Cloud APIs
-- Quotas Required
-- Service Accounts
-- Networks
-  - Subnets 
-  - Routes
-  - External IPs
-- FireWall Rules
-- Load Balancing
-  - Forwarding Rules
-  - Target Pools
-  - Health Checks 
-- Instance Groups
-- Images
+Default quotas on a new GCP subscription will not have enough quota for a typical PCF deployment.  This Reference Architecture has been sized to host ~300 typical Cloud Foundry AIs.   You should request a Quota increase for the following Objects:
 
-### Network Topology
+| Resource        | Suggested Limit                   |
+| ----------------------------- |:-------------------------:|
+| CPUs *Region Specific*		|#|
+| Firewall Rules				   |#|
+| Forwarding Rules				   |#|
+| Health Checks				   |#|
+| Images				   |#|
+| Static IP Addresses *Region Specific*   |#|
+| IP Addresses Global				   |#|
+| IP Addresses *Region Specific*		|#|
+| Networks *Region Specific*		|#|
+| Subnetworks		|#|
+| Routes		|#|
+| Target Pools		|#|
+| Total persistent disk reserved (GB) *Region Specific* |#|
+
+#####Service Accounts
+#####Networks
+- Subnets 
+- Routes
+- External IPs
+
+#####FireWall Rules
+#####Load Balancing
+- Forwarding Rules
+- Target Pools
+- Health Checks 
+#####Instance Groups
+#####Images
+
+## Network Topology
 
 Insert IaaS Specific Network Image here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
 
-Explain Base Architecture
+Explain Base Network Architecture
 
   - Recommended Firewall Topology with Tags
   - GCP Project SSH Topology
@@ -61,23 +85,23 @@ Explain Base Architecture
     - 	TCP
     -  HTTPS
 
-Variants to Base Architecture
+## Variants to Reference Architecture
 
 Insert Variant Image(s):![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
 
-  - Private DNS (Non Google Zone Managed) (Pipeline Link)
-  - Private RFC versus Public IP Addresses & NAT (Pipeline Link)
-  - IaaS Specific VPN Architecture
-  - GSLB Setup for multiple (Pipeline Link)
+  1. Private DNS (Non Google Zone Managed) (Pipeline Link)
+  2. Private RFC versus Public IP Addresses & NAT (Pipeline Link)
+  3. IaaS Specific VPN Architecture (Pipeline Link)
+  4. GSLB Setup for multiple (Pipeline Link)
 
   
 
-#Pivotal Customer0 Deployment Pipeline
+##Pivotal Customer0 PCF on GCP Deployment Pipeline
 
 Describe what Customer0 Uses the pipeline for (Solution Validation)
 [Insert Link to pipeline repo]
 
-
+- Document how to prepare the Google Project (API, Quotas, Service Account Creds, etc...)
 - Document How to use the pipeline in a POC scenario
 - Document How to ref the pipeline for manual deployment steps
 - Document What Customer0 Validates * (Future link to validation repos)
@@ -92,6 +116,6 @@ Pipeline Job/Tasks
 Links to Relevant Pipeline Code
 ```
 
-#PCF on GCP Links
+##PCF on GCP Links
 
 [https://cloud.google.com/solutions/cloud-foundry-on-gcp](https://cloud.google.com/solutions/cloud-foundry-on-gcp)
