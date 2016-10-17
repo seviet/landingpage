@@ -1,10 +1,9 @@
-var OMG_GITHUB_REPO = "omg-cli"
-var PLUGINS_GITHUB_REPO = "omg-product-bundle"
+var C0_GITHUB_REPO = "concourse-deploy-gemfire"
 
 jQuery(function($) {
   //setDownloadLinksToLatestVersion();
-  getLatestGithubRelease(OMG_GITHUB_REPO);
-  getLatestGithubRelease(PLUGINS_GITHUB_REPO);
+  getLatestGithubRelease(C0_GITHUB_REPO);
+  //getLatestGithubRelease(PLUGINS_GITHUB_REPO);
 });
 
 // A slightly modified version of:
