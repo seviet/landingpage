@@ -1,0 +1,5 @@
+---
+applications:
+- name: c0 
+  memory: 64M
+  random-route: false

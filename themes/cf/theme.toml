@@ -1,0 +1,16 @@
+name = "Landing Page"
+license = "Apache2"
+licenselink = "https://github.com/c0-ops/landingpage/blob/master/LICENSE.md"
+description = "c0 landing page theme."
+homepage = "https://github.com/c0-ops/landingpage"
+tags = ["oss", "landing page"]
+features = ["social", "images" ]
+min_version= 0.14
+
+[author]
+     name = "jcalabrese"
+
+[original]
+    author =  "crakjie"
+    homepage = "https://github.com/crakjie/landing-page-hugo"
+    repo = "https://github.com/crakjie/landing-page-hugo"

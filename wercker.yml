@@ -1,0 +1,22 @@
+#debian box pinned to latest
+box: debian
+build:
+  steps:
+    # Use off the shelf hugo build step
+    # https://app.wercker.com/#applications/54a7744c6b3ba8733de4dcde/tab/details
+    - arjen/hugo-build:
+      version: "0.15"
+
+deploy:
+  steps:
+    - wercker/install-packages:
+      packages: wget
+    - xchapter7x/cf-push:
+      cloudfoundry_user_name: $CF_USER
+      cloudfoundry_user_pass: $CF_PASSWORD
+      cloudfoundry_org: pcfsolutions
+      cloudfoundry_space: c0-prod
+      cloudfoundry_api_url: https://api.run.pez.pivotal.io
+      cloudfoundry_app_name: c0 
+      cloudfoundry_use_manifest: true
+      cloudfoundry_domain: pezapp.io

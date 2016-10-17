@@ -1,0 +1,18 @@
+{{ partial "head.html" . }}
+{{ partial "navigation.html" . }}
+<!-- List -->
+<section id="main">
+  <div class="list-container">
+    <div class="row">
+      <div class="col-md-2">
+        {{ partial "docmenu.html" . }}
+      </div>
+      <div class="col-md-8 text-left" style="padding-top: 50px;">
+        {{ .Content }}
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+  </div>
+</section>
+<!-- /List -->
+{{ partial "footer.html" . }}

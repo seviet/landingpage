@@ -1,0 +1,14 @@
+<aside class="site">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h2 class="panel-title">Documentation</h2>
+    </div>
+    <div>
+      <div class="list-group">
+        {{ range where .Site.Pages "Section" "docs" }}
+          <a class="list-group-item" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</aside>

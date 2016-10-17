@@ -1,0 +1,26 @@
+<script src="/js/jquery-1.11.0.js"></script>
+<script src="/js/releases.js"></script>
+{{ partial "head.html" . }}
+{{ partial "navigation.html" . }}
+<div class="list-container" style="padding-top: 100px">
+  <div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 ">
+        {{ .Content }}
+        <br/>
+        <h3 id="version">Latest Release</h3>
+        <hr/>
+        <h2 class="fa fa-linux"> <a href="http://pivotal-cfops.s3-website-us-east-1.amazonaws.com/release/linux64/">Linux</a></h2>
+        <hr/>
+        <h2 class="fa fa-apple"> <a href="http://pivotal-cfops.s3-website-us-east-1.amazonaws.com/release/osx/">OS X</a></h2>
+        <hr/>
+        <h2 class="fa fa-windows"> <a href="http://pivotal-cfops.s3-website-us-east-1.amazonaws.com/release/win64/">Windows</a></h2>
+        <hr/>
+    </div>
+    <div class="col-md-2"></div>
+  </div>
+</div>
+
+<div class="hide" id="bucket">{{ .Params.bucket }}</div>
+<div class="hide" id="fileName">{{ .Params.file }}</div>
+{{ partial "footer.html" . }}

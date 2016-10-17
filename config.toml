@@ -1,0 +1,22 @@
+baseurl = "http://c0.pezapp.io/"
+languageCode = "en-us"
+title = "Customer[0]"
+theme = "cf"
+
+[params]
+  image = "<img src=\"/img/c0_white_green_slogan-honeycomb.pmg\"></img>"
+
+[[params.actionlink]]
+    title = "download"
+    icon = "cloud-download"
+    url = "/downloads/release"
+
+[[params.social]]
+    title = "github"
+    icon = "github"
+    url = "https://github.com/c0-ops"
+
+[[params.social]]
+    title = "Slack"
+    icon = "slack"
+    url = "https://pivotal.slack.com/messages/customer0/"

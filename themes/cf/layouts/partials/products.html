@@ -1,0 +1,40 @@
+<!-- products Section -->
+<br>
+<br>
+<br>
+<br>
+<section id="products" class="container content-section text-center">
+	{{ range where .Data.Pages "Section" "about" | first 1 }}
+	<div class="row">
+		<div class="col-lg-3 col-lg-offset-1 col-sm-3">
+			<a href="https://www.pivotaltracker.com/n/projects/1472134">
+				<img class="img-responsive" style="max-height: 120px;" src="/img/tracker.png" alt="c0 tracker">
+			</a>
+		</div>
+		<div class="col-lg-3 col-lg-offset-1 col-sm-3">
+			<a href="https://share.geckoboard.com/dashboards/T2YFZ5ZZBWWMJDCJ">
+				<img class="img-responsive" style="max-height: 120px;" src="/img/dashboard.png" alt="c0 Dashboard">
+			</a>
+		</div>
+		<div class="col-lg-3 col-lg-offset-1 col-sm-3">
+			<a href="https://fly.customer0.io/">
+				<img class="img-responsive" style="max-height: 120px;" src="/img/concourse.png" alt="Concourse">
+			</a>
+		</div>
+	</div>
+  <div class="row">
+    <div class="col-lg-5">
+    </div>
+    <div class="col-lg-2" style="padding-top:20px">
+      <a href="/downloads/products" >
+			<i class="fa fa-download fa-fw"></i>
+      <span class="network-name">Get More</span>
+</a>
+    </div>
+  </div>
+	{{ end }}
+</section>
+<br>
+<br>
+<br>
+<br>
