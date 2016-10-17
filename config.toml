@@ -20,3 +20,8 @@ theme = "cf"
     title = "Slack"
     icon = "slack"
     url = "https://pivotal.slack.com/messages/customer0/"
+
+[[params.social]]
+    title = "Drive"
+    icon = "google"
+    url = "https://drive.google.com/drive/folders/0BxmFtGAKfw7vUkIyYmpBTFlqZGs?usp=sharing"
