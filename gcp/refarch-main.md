@@ -17,8 +17,10 @@ Validation Key Info (October 2016)
 
 ## IaaS Overview
 
-Insert IaaS Specific Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview.png)
+Insert IaaS Specific Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
 
+- [Pipeline Repo Link](https://github.com/c0-ops/gcp-concourse)
+- [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-gcp-deploy-ert-base)
 
 
 PCF on GCP requires the following logical Constructs:
@@ -68,7 +70,7 @@ Default quotas on a new GCP subscription will not have enough quota for a typica
 
 ## Network Topology
 
-Insert IaaS Specific Network Image here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
+Insert Base Network Topology :![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/net-topology-base.png)
 
 Explain Base Network Architecture
 
@@ -81,7 +83,7 @@ Explain Base Network Architecture
 
 ## Variants to Reference Architecture
 
-Insert Variant Image(s):![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
+Insert Variant Image(s) here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
 
   1. Private DNS (Non Google Zone Managed) (Pipeline Link)
   2. Private RFC versus Public IP Addresses & NAT (Pipeline Link)
