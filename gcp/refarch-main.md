@@ -17,7 +17,7 @@ Validation Key Info (October 2016)
 
 ## IaaS Overview
 
-Insert IaaS Specific Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
+PCF on GCP Reference Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
 
 - [Pipeline Repo Link](https://github.com/c0-ops/gcp-concourse)
 - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-gcp-deploy-ert-base)
@@ -70,7 +70,7 @@ Default quotas on a new GCP subscription will not have enough quota for a typica
 
 ## Network Topology
 
-Insert Base Network Topology :![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/net-topology-base.png)
+PCF on GCP Base Network Topology :![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/net-topology-base.png)
 
 Explain Base Network Architecture
 
