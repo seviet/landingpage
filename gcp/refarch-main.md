@@ -102,10 +102,19 @@ Customer0 will 'validate' a limited number of variant scenarios from the base to
 Describe what Customer0 Uses the pipeline for (Solution Validation)
 [Insert Link to pipeline repo]
 
-- Document how to prepare the Google Project (API, Quotas, Service Account Creds, etc...)
-- Document How to use the pipeline in a POC scenario
-- Document How to ref the pipeline for manual deployment steps
-- Document What Customer0 Validates * (Future link to validation repos)
+Min-Reqs to run the Pipleine ...
+
+1. Appropriate GCP Quotas
+2. [GCP Service Account](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#iam_account)
+3. [Enable GCP APIs](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#enable_compute_resource_api)
+4. A resolvable/registered DNS domain for Cloud Foundry `system` & `apps` domains
+5. A [Concourse](https://concourse.ci/) instance with workers that have public access.
+
+(ToDo) Document How to use the pipeline in a POC scenario ...
+
+(ToDo) Document How to ref the pipeline for manual deployment steps ...
+
+(ToDo) Document What Customer0 Validates * (Future html link to validation repos) ...
 
 Pipeline Job/Tasks
 ```
@@ -117,6 +126,10 @@ Pipeline Job/Tasks
 Links to Relevant Pipeline Code
 ```
 
-##PCF on GCP Links
+##PCF on GCP Helpful Links
 
-[https://cloud.google.com/solutions/cloud-foundry-on-gcp](https://cloud.google.com/solutions/cloud-foundry-on-gcp)
+- [https://cloud.google.com/solutions/cloud-foundry-on-gcp](https://cloud.google.com/solutions/cloud-foundry-on-gcp)
+- [http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html)
+- [https://github.com/cloudfoundry-incubator/bosh-google-cpi-release](https://github.com/cloudfoundry-incubator/bosh-google-cpi-release)
+- [http://bosh.io/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent](http://bosh.io/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent)
+- [http://bosh.io/releases/github.com/cloudfoundry-incubator/bosh-google-cpi-release?all=1](http://bosh.io/releases/github.com/cloudfoundry-incubator/bosh-google-cpi-release?all=1)
