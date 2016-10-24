@@ -4,24 +4,26 @@ __Summary__:  Customer0 Reference Architectures are utilized by Pivotal's Custom
 
 *__This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied__*.
 
-Validation Key Info (October 2016)
+Validation Key Info (__STATUS__=*Not Yet Passing C0 Validation!!!*)
 
-| PCF Products Validated        | Version                   |
-| ----------------------------- |:-------------------------:|
-| PCF Ops Manager               | 1.8.#	(Latest) |
-| Elastic Runtime               | 1.8.# (Latest) |
-| Rabbit                        | 1.7.# (Latest) |
-| Metrics                       | 1.1.# (Latest) |
-| Mysql                         | 1.7.# (Latest) |
-| Spring Cloud Services         | 1.2.# (Latest) |
+| PCF Products Validated        | Version                   | Known Issues              |
+| -----------------------------:|:-------------------------|:-------------------------|
+| PCF Ops Manager               | 1.8.#	(Latest) | |
+| Elastic Runtime               | 1.8.# (Latest) | 1.8.8 ERT, Ops Manager places Routers in AZ3 to incorrect GCP backend.  AZ1 & AZ2 OK & smoke tests passing
+| Rabbit                        | 1.7.# (Latest) | |
+| Metrics                       | 1.1.# (Latest) | |
+| Mysql                         | 1.7.# (Latest) | |
+| Spring Cloud Services         | 1.2.# (Latest) | |
 
 ## IaaS Overview
 
-Insert IaaS Specific Architecture Overview:![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview.png)
+PCF on GCP Reference Architecture Overview (*c0-gcp-base*):![c0-gcp-base v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
+
+- [Pipeline Repo Link](https://github.com/c0-ops/gcp-concourse)
+- [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-gcp-deploy-ert-base)
 
 
-
-PCF on GCP requires the following logical Constructs:
+PCF on GCP requires the following GCP Components:
 
 ##### Project/Region/Zones
 
@@ -62,15 +64,16 @@ Default quotas on a new GCP subscription will not have enough quota for a typica
 #####Load Balancing
 - Forwarding Rules
 - Target Pools
-- Health Checks 
+- Health Checks
+ 
 #####Instance Groups
 #####Images
 
 ## Network Topology
 
-Insert IaaS Specific Network Image here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
+PCF on GCP Base Network Topology (*c0-gcp-base*):![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/net-topology-base.png)
 
-Explain Base Network Architecture
+Explain Base Network Architecture & GCP Objects
 
   - Recommended Firewall Topology with Tags
   - GCP Project SSH Topology
@@ -81,12 +84,16 @@ Explain Base Network Architecture
 
 ## Variants to Reference Architecture
 
-Insert Variant Image(s):![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
+Will Variant Image(s) here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
 
-  1. Private DNS (Non Google Zone Managed) (Pipeline Link)
-  2. Private RFC versus Public IP Addresses & NAT (Pipeline Link)
-  3. IaaS Specific VPN Architecture (Pipeline Link)
-  4. GSLB Setup for multiple (Pipeline Link)
+Customer0 will 'validate' a limited number of variant scenarios from the base tolopology.
+
+| Variant *{{gcp_pcf_terraform_template}}*| Varient Description                   |
+| -----------------------------:|:-------------------------|
+|c0-gcp-nonat|Base template + No dedicated SNAT, default GCP instances each with Public IPs for SNAT| 
+|c0-gcp-private|Base template - All External IPs, no public IPs at all||
+|c0-gcp-ipsec|Base template + IPSEC add on||
+|c0-gcp-gslb|2 x Base templates deployments Globally load balanced||
 
   
 
@@ -95,10 +102,19 @@ Insert Variant Image(s):![alt text](https://d1fto35gcfffzn.cloudfront.net/images
 Describe what Customer0 Uses the pipeline for (Solution Validation)
 [Insert Link to pipeline repo]
 
-- Document how to prepare the Google Project (API, Quotas, Service Account Creds, etc...)
-- Document How to use the pipeline in a POC scenario
-- Document How to ref the pipeline for manual deployment steps
-- Document What Customer0 Validates * (Future link to validation repos)
+Min-Reqs to run the Pipleine ...
+
+1. Appropriate GCP Quotas
+2. [GCP Service Account](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#iam_account)
+3. [Enable GCP APIs](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#enable_compute_resource_api)
+4. A resolvable/registered DNS domain for Cloud Foundry `system` & `apps` domains
+5. A [Concourse](https://concourse.ci/) instance with workers that have public access.
+
+(ToDo) Document How to use the pipeline in a POC scenario ...
+
+(ToDo) Document How to ref the pipeline for manual deployment steps ...
+
+(ToDo) Document What Customer0 Validates * (Future html link to validation repos) ...
 
 Pipeline Job/Tasks
 ```
@@ -110,6 +126,10 @@ Pipeline Job/Tasks
 Links to Relevant Pipeline Code
 ```
 
-##PCF on GCP Links
+##PCF on GCP Helpful Links
 
-[https://cloud.google.com/solutions/cloud-foundry-on-gcp](https://cloud.google.com/solutions/cloud-foundry-on-gcp)
+- [https://cloud.google.com/solutions/cloud-foundry-on-gcp](https://cloud.google.com/solutions/cloud-foundry-on-gcp)
+- [http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html)
+- [https://github.com/cloudfoundry-incubator/bosh-google-cpi-release](https://github.com/cloudfoundry-incubator/bosh-google-cpi-release)
+- [http://bosh.io/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent](http://bosh.io/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent)
+- [http://bosh.io/releases/github.com/cloudfoundry-incubator/bosh-google-cpi-release?all=1](http://bosh.io/releases/github.com/cloudfoundry-incubator/bosh-google-cpi-release?all=1)
