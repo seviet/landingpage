@@ -1,0 +1,292 @@
+SubscriptionID = "3df1883a-06af-4e6e-8d78-7984d63ba9e6"
+
+azure account list --json
+
+[
+  {
+    "id": "3df1883a-06af-4e6e-8d78-7984d63ba9e6",
+    "name": "CF-Customer 0",
+    "user": {
+      "name": "fdonald@pivotal.io",
+      "type": "user"
+    },
+    "tenantId": "29248f74-371f-4db2-9a50-c62a6877a0c1",
+    "state": "Enabled",
+    "isDefault": true,
+    "registeredProviders": [],
+    "environmentName": "AzureCloud"
+  }
+]
+
+azure ad app create --name "Service Principal for BOSH" --password "c0P1v0tal" --home-page "http://c0-pipelines" --identifier-uris "http://c0-pipelines"
+
+info:    Executing command ad app create
++ Creating application Service Principal for BOSH
+data:    AppId:                   fc9b85c0-9042-46a1-bebe-265a9a15d3dd
+data:    ObjectId:                ebf07986-7c8c-4289-bb6a-4fa99ef41abc
+data:    DisplayName:             Service Principal for BOSH
+data:    IdentifierUris:          0=http://c0-pipelines
+data:    ReplyUrls:
+data:    AvailableToOtherTenants: False
+data:    HomePage:                http://c0-pipelines
+info:    ad app create command OK
+
+azure ad sp create --applicationId fc9b85c0-9042-46a1-bebe-265a9a15d3dd
+
+info:    Executing command ad sp create
++ Creating service principal for application fc9b85c0-9042-46a1-bebe-265a9a15d3dd
+data:    Object Id:               b614bca6-4266-4817-8b99-f5e09ad6b214
+data:    Display Name:            Service Principal for BOSH
+data:    Service Principal Names:
+data:                             fc9b85c0-9042-46a1-bebe-265a9a15d3dd
+data:                             http://c0-pipelines
+info:    ad sp create command OK
+
+azure role assignment create --spn "fc9b85c0-9042-46a1-bebe-265a9a15d3dd" --roleName "Contributor" --subscription 3df1883a-06af-4e6e-8d78-7984d63ba9e6
+
+info:    Executing command role assignment create
++ Finding role with specified name
+\data:    RoleAssignmentId     : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/providers/Microsoft.Authorization/roleAssignments/5c7bd379-9cd0-462e-9295-18c38fee1c71
+data:    RoleDefinitionName   : Contributor
+data:    RoleDefinitionId     : b24988ac-6180-42a0-ab88-20f7382dd24c
+data:    Scope                : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6
+data:    Display Name         : Service Principal for BOSH
+data:    SignInName           : undefined
+data:    ObjectId             : b614bca6-4266-4817-8b99-f5e09ad6b214
+data:    ObjectType           : ServicePrincipal
+data:
++
+info:    role assignment create command OK
+
+azure login --username "fc9b85c0-9042-46a1-bebe-265a9a15d3dd" --password "c0P1v0tal" --service-principal --tenant "29248f74-371f-4db2-9a50-c62a6877a0c1" --environment AzureCloud
+
+info:    Executing command login
+\info:    Added subscription CF-Customer 0
++
+info:    login command OK
+
+azure network nsg create $RESOURCE_GROUP c0-pcf-nsg $LOCATION
+
+info:    Executing command network nsg create
++ Looking up the network security group "c0-pcf-nsg"
++ Creating a network security group "c0-pcf-nsg"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/networkSecurityGroups/c0-pcf-nsg
+data:    Name                            : c0-pcf-nsg
+data:    Type                            : Microsoft.Network/networkSecurityGroups
+data:    Location                        : centralus
+data:    Provisioning state              : Succeeded
+data:    Security rules:
+data:    Name                           Source IP          Source Port  Destination IP  Destination Port  Protocol  Direction  Access  Priority
+data:    -----------------------------  -----------------  -----------  --------------  ----------------  --------  ---------  ------  --------
+data:    AllowVnetInBound               VirtualNetwork     *            VirtualNetwork  *                 *         Inbound    Allow   65000
+data:    AllowAzureLoadBalancerInBound  AzureLoadBalancer  *            *               *                 *         Inbound    Allow   65001
+data:    DenyAllInBound                 *                  *            *               *                 *         Inbound    Deny    65500
+data:    AllowVnetOutBound              VirtualNetwork     *            VirtualNetwork  *                 *         Outbound   Allow   65000
+data:    AllowInternetOutBound          *                  *            Internet        *                 *         Outbound   Allow   65001
+data:    DenyAllOutBound                *                  *            *               *                 *         Outbound   Deny    65500
+info:    network nsg create command OK
+
+azure network nsg rule create $RESOURCE_GROUP c0-pcf-nsg internet-to-lb --protocol tcp --priority 100 --destination-port-range '*'
+
+info:    Executing command network nsg rule create
+warn:    Using default --source-port-range *
+warn:    Using default --source-address-prefix *
+warn:    Using default --destination-address-prefix *
+warn:    Using default --access Allow
+warn:    Using default --direction Inbound
++ Looking up the network security group "c0-pcf-nsg"
++ Looking up the network security rule "internet-to-lb"
++ Creating a network security rule "internet-to-lb"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/networkSecurityGroups/c0-pcf-nsg/securityRules/internet-to-lb
+data:    Name                            : internet-to-lb
+data:    Type                            : Microsoft.Network/networkSecurityGroups/securityRules
+data:    Provisioning state              : Succeeded
+data:    Source IP                       : *
+data:    Source Port                     : *
+data:    Destination IP                  : *
+data:    Destination Port                : *
+data:    Protocol                        : Tcp
+data:    Direction                       : Inbound
+data:    Access                          : Allow
+data:    Priority                        : 100
+info:    network nsg rule create command OK
+
+azure network nsg rule create $RESOURCE_GROUP c0-opsmgr-nsg http --protocol Tcp --destination-port-range 80 --priority 100
+info:    Executing command network nsg rule create
+warn:    Using default --source-port-range *
+warn:    Using default --source-address-prefix *
+warn:    Using default --destination-address-prefix *
+warn:    Using default --access Allow
+warn:    Using default --direction Inbound
++ Looking up the network security group "c0-opsmgr-nsg"
++ Looking up the network security rule "http"
++ Creating a network security rule "http"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/networkSecurityGroups/c0-opsmgr-nsg/securityRules/http
+data:    Name                            : http
+data:    Type                            : Microsoft.Network/networkSecurityGroups/securityRules
+data:    Provisioning state              : Succeeded
+data:    Source IP                       : *
+data:    Source Port                     : *
+data:    Destination IP                  : *
+data:    Destination Port                : 80
+data:    Protocol                        : Tcp
+data:    Direction                       : Inbound
+data:    Access                          : Allow
+data:    Priority                        : 100
+info:    network nsg rule create command OK
+
+azure network nsg rule create $RESOURCE_GROUP c0-opsmgr-nsg https --protocol Tcp --destination-port-range 443 --priority 200
+info:    Executing command network nsg rule create
+warn:    Using default --source-port-range *
+warn:    Using default --source-address-prefix *
+warn:    Using default --destination-address-prefix *
+warn:    Using default --access Allow
+warn:    Using default --direction Inbound
++ Looking up the network security group "c0-opsmgr-nsg"
++ Looking up the network security rule "https"
++ Creating a network security rule "https"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/networkSecurityGroups/c0-opsmgr-nsg/securityRules/https
+data:    Name                            : https
+data:    Type                            : Microsoft.Network/networkSecurityGroups/securityRules
+data:    Provisioning state              : Succeeded
+data:    Source IP                       : *
+data:    Source Port                     : *
+data:    Destination IP                  : *
+data:    Destination Port                : 443
+data:    Protocol                        : Tcp
+data:    Direction                       : Inbound
+data:    Access                          : Allow
+data:    Priority                        : 200
+info:    network nsg rule create command OK
+
+azure network nsg rule create $RESOURCE_GROUP c0-opsmgr-nsg ssh --protocol Tcp --destination-port-range 22 --priority 300
+info:    Executing command network nsg rule create
+warn:    Using default --source-port-range *
+warn:    Using default --source-address-prefix *
+warn:    Using default --destination-address-prefix *
+warn:    Using default --access Allow
+warn:    Using default --direction Inbound
++ Looking up the network security group "c0-opsmgr-nsg"
++ Looking up the network security rule "ssh"
++ Creating a network security rule "ssh"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/networkSecurityGroups/c0-opsmgr-nsg/securityRules/ssh
+data:    Name                            : ssh
+data:    Type                            : Microsoft.Network/networkSecurityGroups/securityRules
+data:    Provisioning state              : Succeeded
+data:    Source IP                       : *
+data:    Source Port                     : *
+data:    Destination IP                  : *
+data:    Destination Port                : 22
+data:    Protocol                        : Tcp
+data:    Direction                       : Inbound
+data:    Access                          : Allow
+data:    Priority                        : 300
+info:    network nsg rule create command OK
+
+azure network vnet create $RESOURCE_GROUP c0-pcf-net $LOCATION --address-prefixes 10.0.0.0/16
+info:    Executing command network vnet create
++ Looking up the virtual network "c0-pcf-net"
++ Creating virtual network "c0-pcf-net"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/virtualNetworks/c0-pcf-net
+data:    Name                            : c0-pcf-net
+data:    Type                            : Microsoft.Network/virtualNetworks
+data:    Location                        : centralus
+data:    Provisioning state              : Succeeded
+data:    Address prefixes:
+data:      10.0.0.0/16
+info:    network vnet create command OK
+
+azure network vnet subnet create $RESOURCE_GROUP c0-pcf-net $LOCATION --address-prefix 10.0.0.0/20
+info:    Executing command network vnet subnet create
++ Looking up the virtual network "c0-pcf-net"
++ Looking up the subnet "centralus"
++ Creating subnet "centralus"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/virtualNetworks/c0-pcf-net/subnets/centralus
+data:    Name                            : centralus
+data:    Provisioning state              : Succeeded
+data:    Address prefix                  : 10.0.0.0/20
+info:    network vnet subnet create command OK
+
+azure storage account create $STORAGE_NAME --resource-group $RESOURCE_GROUP --sku-name LRS --kind Storage --subscription "3df1883a-06af-4e6e-8d78-7984d63ba9e6" --location $LOCATION
+info:    Executing command storage account create
++ Checking availability of the storage account name
++ Creating storage account
+info:    storage account create command OK
+
+azure storage account connectionstring show $STORAGE_NAME --resource-group $RESOURCE_GROUP
+info:    Executing command storage account connectionstring show
++ Getting storage account keys
+data:    connectionstring: DefaultEndpointsProtocol=https;AccountName=boshlun;AccountKey=Me6Cj92m66ORUNX8vfhk0VavOfPtEwQ/2NdHI2rcAqzVbVWsOd1vV/jKc0FRGzzDbUuPT9DFBWu19v4jekOXYg==
+info:    storage account connectionstring show command OK
+
+DefaultEndpointsProtocol=https;AccountName=boshlun;AccountKey=Me6Cj92m66ORUNX8vfhk0VavOfPtEwQ/2NdHI2rcAqzVbVWsOd1vV/jKc0FRGzzDbUuPT9DFBWu19v4jekOXYg==
+
+azure storage container create opsmanager
+
+info:    Executing command storage container create
++ Creating storage container opsmanager
++ Getting storage container information
+data:    {
+data:        name: 'opsmanager',
+data:        metadata: {},
+data:        etag: '"0x8D3F931DBF14C66"',
+data:        lastModified: 'Thu, 20 Oct 2016 21:41:32 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: 'a33bcd84-0001-00bc-281a-2b8c60000000',
+data:        publicAccessLevel: 'Off'
+data:    }
+info:    storage container create command OK
+
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create bosh
+
+info:    Executing command storage container create
++ Creating storage container bosh
++ Getting storage container information
+data:    {
+data:        name: 'bosh',
+data:        metadata: {},
+data:        etag: '"0x8D3F931E31FE973"',
+data:        lastModified: 'Thu, 20 Oct 2016 21:41:44 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: '95ca1a81-0001-0025-6b1a-2b03a2000000',
+data:        publicAccessLevel: 'Off'
+data:    }
+info:    storage container create command OK
+
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create stemcell --permission blob
+
+info:    Executing command storage container create
++ Creating storage container stemcell
++ Getting storage container information
+data:    {
+data:        name: 'stemcell',
+data:        metadata: {},
+data:        etag: '"0x8D3F931EEED0597"',
+data:        lastModified: 'Thu, 20 Oct 2016 21:42:04 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: '744e9481-0001-00ca-2a1a-2b08dc000000',
+data:        publicAccessLevel: 'Blob'
+data:    }
+info:    storage container create command OK
+
+Fords-Pivotal-MBPro:git fdonald$ azure storage table create stemcells
+
+info:    Executing command storage table create
++ Creating storage table stemcells
++ Getting Storage table information
+info:    No information is found for table stemcells
+info:    storage table create command OK
+
+Fords-Pivotal-MBPro:git fdonald$ azure storage account create ertstorage1 --resource-group $RESOURCE_GROUP --sku-name LRS --kind Storage --subscription "3df1883a-06af-4e6e-8d78-7984d63ba9e6" --location $LOCATION
+
+info:    Executing command storage account create
++ Checking availability of the storage account name
++ Creating storage account
+info:    storage account create command OK
+
+Fords-Pivotal-MBPro:git fdonald$ azure storage account create ertstorage2 --resource-group $RESOURCE_GROUP --sku-name LRS --kind Storage --subscription "3df1883a-06af-4e6e-8d78-7984d63ba9e6" --location $LOCATION
+
+info:    Executing command storage account create
++ Checking availability of the storage account name
++ Creating storage account
+info:    storage account create command OK
