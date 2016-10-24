@@ -25,7 +25,7 @@ The reference approach is to create a Resource Group, populate it with a virtual
   ![]Image
 
 In Azure, you will need some architectural constructs to deploy products in:
-  - A Service Account to deploy with (<- validate)
+  - A Service Principal account in a Azure Active Directory (ADD) application for BOSH to use to deploy PCF with
   - A Resource Group per PCF installation, two required for HA
   - Availability Sets for each BOSH job
   - A Virtual Network with three subnets for PCF. Note that a subnet is a logical component of a single Virtual Network.

@@ -290,3 +290,194 @@ info:    Executing command storage account create
 + Checking availability of the storage account name
 + Creating storage account
 info:    storage account create command OK
+
+azure storage account create ertstorage3 --resource-group $RESOURCE_GROUP --sku-name LRS --kind Storage --subscription "3df1883a-06af-4e6e-8d78-7984d63ba9e6" --location $LOCATION
+info:    Executing command storage account create
++ Checking availability of the storage account name
++ Creating storage account
+info:    storage account create command OK
+
+azure storage account connectionstring show ertstorage1 --resource-group $RESOURCE_GROUP
+info:    Executing command storage account connectionstring show
++ Getting storage account keys
+data:    connectionstring: DefaultEndpointsProtocol=https;AccountName=ertstorage1;AccountKey=j+7EkvomLB2FamN5ZwKWqUtdNdWIsRZTDNOnCy2V52ERjACYx4McbYNu2lI25rT8L8bvBHpHg59n9R95BErYDA==
+info:    storage account connectionstring show command OK
+
+azure storage account connectionstring show ertstorage2 --resource-group $RESOURCE_GROUP
+info:    Executing command storage account connectionstring show
++ Getting storage account keys
+data:    connectionstring: DefaultEndpointsProtocol=https;AccountName=ertstorage2;AccountKey=hGQhP2p4+/dwtIvbg7xeus7WYTKm5GZwzHQSh7roQ3hoGOQ8+2yt2iS+XTkQj2CdTHoo3dX4jknU6qoppTkVlQ==
+info:    storage account connectionstring show command OK
+
+azure storage account connectionstring show ertstorage3 --resource-group $RESOURCE_GROUP
+info:    Executing command storage account connectionstring show
++ Getting storage account keys
+data:    connectionstring: DefaultEndpointsProtocol=https;AccountName=ertstorage3;AccountKey=4vxi4kxcDwYH9r4Oxf4VF4MAY+ylSMkK1ZKkABdyvC7+QSoMBWWjeFv/9dUHUBQLNg0byH8AquxEnCTgRMf2Kw==
+info:    storage account connectionstring show command OK
+
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create opsmanager --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage1;AccountKey=j+7EkvomLB2FamN5ZwKWqUtdNdWIsRZTDNOnCy2V52ERjACYx4McbYNu2lI25rT8L8bvBHpHg59n9R95BErYDA=="
+info:    Executing command storage container create
++ Creating storage container opsmanager
++ Getting storage container information
+data:    {
+data:        name: 'opsmanager',
+data:        metadata: {},
+data:        etag: '"0x8D3F934E87EFB2F"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:03:22 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: 'f24d8365-0001-0081-541d-2b9d0f000000',
+data:        publicAccessLevel: 'Off'
+data:    }
+info:    storage container create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create bosh --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage1;AccountKey=j+7EkvomLB2FamN5ZwKWqUtdNdWIsRZTDNOnCy2V52ERjACYx4McbYNu2lI25rT8L8bvBHpHg59n9R95BErYDA=="
+info:    Executing command storage container create
++ Creating storage container bosh
++ Getting storage container information
+data:    {
+data:        name: 'bosh',
+data:        metadata: {},
+data:        etag: '"0x8D3F934FB777C34"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:03:54 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: '92513186-0001-00cc-611d-2b5bed000000',
+data:        publicAccessLevel: 'Off'
+data:    }
+info:    storage container create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create stemcell --permission blob --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage1;AccountKey=j+7EkvomLB2FamN5ZwKWqUtdNdWIsRZTDNOnCy2V52ERjACYx4McbYNu2lI25rT8L8bvBHpHg59n9R95BErYDA=="
+info:    Executing command storage container create
++ Creating storage container stemcell
++ Getting storage container information
+data:    {
+data:        name: 'stemcell',
+data:        metadata: {},
+data:        etag: '"0x8D3F935111395B0"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:04:30 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: 'fab74dc7-0001-00a0-091d-2bf03e000000',
+data:        publicAccessLevel: 'Blob'
+data:    }
+info:    storage container create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create opsmanager --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage2;AccountKey=hGQhP2p4+/dwtIvbg7xeus7WYTKm5GZwzHQSh7roQ3hoGOQ8+2yt2iS+XTkQj2CdTHoo3dX4jknU6qoppTkVlQ=="
+info:    Executing command storage container create
++ Creating storage container opsmanager
++ Getting storage container information
+data:    {
+data:        name: 'opsmanager',
+data:        metadata: {},
+data:        etag: '"0x8D3F9352CC372B0"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:05:16 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: 'a4210f84-0001-001e-221e-2b73ad000000',
+data:        publicAccessLevel: 'Off'
+data:    }
+info:    storage container create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create bosh --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage2;AccountKey=hGQhP2p4+/dwtIvbg7xeus7WYTKm5GZwzHQSh7roQ3hoGOQ8+2yt2iS+XTkQj2CdTHoo3dX4jknU6qoppTkVlQ=="
+info:    Executing command storage container create
++ Creating storage container bosh
++ Getting storage container information
+data:    {
+data:        name: 'bosh',
+data:        metadata: {},
+data:        etag: '"0x8D3F9353B4B585A"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:05:41 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: '14ace3d1-0001-006a-7b1e-2bf5eb000000',
+data:        publicAccessLevel: 'Off'
+data:    }
+info:    storage container create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create stemcell --permission blob --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage2;AccountKey=hGQhP2p4+/dwtIvbg7xeus7WYTKm5GZwzHQSh7roQ3hoGOQ8+2yt2iS+XTkQj2CdTHoo3dX4jknU6qoppTkVlQ=="
+info:    Executing command storage container create
++ Creating storage container stemcell
++ Getting storage container information
+data:    {
+data:        name: 'stemcell',
+data:        metadata: {},
+data:        etag: '"0x8D3F9354856BA1E"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:06:03 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: '846d4bba-0001-00ef-3a1e-2ba23e000000',
+data:        publicAccessLevel: 'Blob'
+data:    }
+info:    storage container create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create opsmanager --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage3;AccountKey=4vxi4kxcDwYH9r4Oxf4VF4MAY+ylSMkK1ZKkABdyvC7+QSoMBWWjeFv/9dUHUBQLNg0byH8AquxEnCTgRMf2Kw=="
+info:    Executing command storage container create
++ Creating storage container opsmanager
++ Getting storage container information
+data:    {
+data:        name: 'opsmanager',
+data:        metadata: {},
+data:        etag: '"0x8D3F9355D7A9BC9"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:06:38 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: '2b0c5ac4-0001-0018-701e-2baa0e000000',
+data:        publicAccessLevel: 'Off'
+data:    }
+info:    storage container create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create bosh --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage3;AccountKey=4vxi4kxcDwYH9r4Oxf4VF4MAY+ylSMkK1ZKkABdyvC7+QSoMBWWjeFv/9dUHUBQLNg0byH8AquxEnCTgRMf2Kw=="
+info:    Executing command storage container create
++ Creating storage container bosh
++ Getting storage container information
+data:    {
+data:        name: 'bosh',
+data:        metadata: {},
+data:        etag: '"0x8D3F9356B9CCE4E"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:07:02 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: '34e1ed96-0001-00b5-1e1e-2b8a64000000',
+data:        publicAccessLevel: 'Off'
+data:    }
+info:    storage container create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure storage container create stemcell --permission blob --connection-string "DefaultEndpointsProtocol=https;AccountName=ertstorage3;AccountKey=4vxi4kxcDwYH9r4Oxf4VF4MAY+ylSMkK1ZKkABdyvC7+QSoMBWWjeFv/9dUHUBQLNg0byH8AquxEnCTgRMf2Kw=="
+info:    Executing command storage container create
++ Creating storage container stemcell
++ Getting storage container information
+data:    {
+data:        name: 'stemcell',
+data:        metadata: {},
+data:        etag: '"0x8D3F93579E7DCEF"',
+data:        lastModified: 'Thu, 20 Oct 2016 22:07:26 GMT',
+data:        lease: { status: 'unlocked', state: 'available' },
+data:        requestId: '20d1d7be-0001-004e-781e-2b427e000000',
+data:        publicAccessLevel: 'Blob'
+data:    }
+info:    storage container create command OK
+
+azure network lb create $RESOURCE_GROUP c0-pcf-lb $LOCATION
+info:    Executing command network lb create
++ Looking up the load balancer "c0-pcf-lb"
++ Creating load balancer "c0-pcf-lb"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/loadBalancers/c0-pcf-lb
+data:    Name                            : c0-pcf-lb
+data:    Type                            : Microsoft.Network/loadBalancers
+data:    Location                        : centralus
+data:    Provisioning state              : Succeeded
+info:    network lb create command OK
+Fords-Pivotal-MBPro:git fdonald$ azure network public-ip create $RESOURCE_GROUP c0-pcf-lb-ip $LOCATION --allocation-method Static
+info:    Executing command network public-ip create
+warn:    Using default --idle-timeout 4
+warn:    Using default --ip-version IPv4
++ Looking up the public ip "c0-pcf-lb-ip"
++ Creating public ip address "c0-pcf-lb-ip"
+data:    Id                              : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/publicIPAddresses/c0-pcf-lb-ip
+data:    Name                            : c0-pcf-lb-ip
+data:    Type                            : Microsoft.Network/publicIPAddresses
+data:    Location                        : centralus
+data:    Provisioning state              : Succeeded
+data:    Allocation method               : Static
+data:    IP version                      : IPv4
+data:    Idle timeout in minutes         : 4
+data:    IP Address                      : 13.89.32.161
+info:    network public-ip create command OK
+
+IP Address : 13.89.32.161
+
+azure network lb frontend-ip create $RESOURCE_GROUP c0-pcf-lb c0-pcf-fe-ip --public-ip-name c0-pcf-lb-ip
+info:    Executing command network lb frontend-ip create
++ Looking up the load balancer "c0-pcf-lb"
++ Looking up the public ip "c0-pcf-lb-ip"
++ Updating load balancer "c0-pcf-lb"
+data:    Name                            : c0-pcf-fe-ip
+data:    Provisioning state              : Succeeded
+data:    Private IP allocation method    : Dynamic
+data:    Public IP address id            : /subscriptions/3df1883a-06af-4e6e-8d78-7984d63ba9e6/resourceGroups/c0-rgroup/providers/Microsoft.Network/publicIPAddresses/c0-pcf-lb-ip
+info:    network lb frontend-ip create command OK
