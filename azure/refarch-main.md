@@ -6,11 +6,8 @@ Validation Key Info (Date last Updated)
 
 | PCF Products Validated        | Version                   |
 | ----------------------------- |:-------------------------:|
-| PCF Ops Manager               | 1.8.?	(Link to Pipelines) |
-| Elastic Runtime               | 1.8.?                         |
-| future                        | ? 		                    |
-| future                        | ? 	                      |
-| future                        | ? 		                    |
+| PCF Ops Manager               | 1.8.latest |
+| Elastic Runtime               | 1.8.latest                |
 
 ### Pivotal Customer0 Reference Architecture Overview
 
@@ -22,23 +19,37 @@ The reference approach is to create a Resource Group, populate it with a virtual
 
 ### IaaS Architecture
 
-  ![]Image
-
 In Azure, you will need some architectural constructs to deploy products in:
-  - A Service Principal account in a Azure Active Directory (ADD) application for BOSH to use to deploy PCF with
-  - A Resource Group per PCF installation, two required for HA
-  - Availability Sets for each BOSH job
-  - A Virtual Network with three subnets for PCF. Note that a subnet is a logical component of a single Virtual Network.
-  - Network Security Groups
-  - Two Azure Load Balancers (ALBs), one for public access and one for internal use (like MySQL)
+  - (1) Service Principal account in a Azure Active Directory (ADD) application for BOSH to use to deploy PCF with [here](http://docs-pcf-review.cfapps.io/pivotalcf/1-8/customizing/azure-prepare-env.html)
+  - (1) Resource Group per PCF installation. Duplicate this for for HA.
+  - (\*) Availability Sets created by BOSH for each deployment job type
+  - (1) Virtual Network (vnet) with a large range of address space that will be sub-divided
+    - Example: 10.xxx.yyy.0/20
+      - (1) Infra 10.xxx.yyy.0/26
+      - (1) ERT 10.xxx.yyy.0/22
+      - (1) Services-# 10.xxx.yyy.0/22
+    - Note that a subnet is a logical component of a single Virtual Network.
+  - (\*) Network Security Groups (NSGs) - one or more to meet security requirements, firewall rules that apply to network interfaces
+  - (3) Azure Load Balancers (ALBs)
+    - (1) Public app access
+    - (1) Internal use, for example MySQL
+    - Optional (1) TCP Routers, if option is selected
+  - (4) Standard Storage Accounts to match deployment needs (\*see caveats)
+    - (1) Ops Manager + BOSH
+    - (3) ERT and other tile deployments
+  - (1) Jump Box on the Infra network to provide CLI tools
+  - (1 - 4) Public IPs
+    - (1) VIP for ALB for CF domains (sys. and apps.)
+    - Optional (1) VIP for ALB to TCP Routers
+    - Optional (1) SSH into jump box
+    - Optional (1) HTTPS Ops Manager
 
 ### Network Topology
 
   ![]Image
 
-Explain
-
-  - Security Controls (ACLs)
+  - NSGs
+    - [here](http://docs-pcf-review.cfapps.io/pivotalcf/1-8/customizing/azure-om-deploy.html)
   - Application Security Groups
   - Load Balancer Topology
   - Private RFC versus Public IP Addresses
@@ -48,7 +59,7 @@ Explain
 
 ### Caveats and Concerns
 
-Azure Storage Accounts have an IOPs limit (20k, per) which generally relates to a VM limit of 20 VMs per (safely). Sive your deployments accordingly.
+Azure Storage Accounts have an IOPs limit (20k, per) which generally relates to a VM limit of 20 VMs per (safely). Consumers aren't charged by the Storage Account but rather by consumption. Size your deployments accordingly.
 
 A practical jump box inside your Azure deployment can be very useful. A Linux VM with a number of useful CLIs pre-installed is recommended:
 
