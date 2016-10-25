@@ -17,7 +17,7 @@ Validation Key Info (STATUS=Draft WIP)
 
 This model shows a single PCF deployment in a single Azure Resource Group. HA deployments can be achieved by creating and same topology in an additional Resource Group and globally load balancing across them (GSLB).
 
-The reference approach is to create a single Resource Group, populate it with the required Azure constructs and then deploy PCF with Pivotal Operations Manager.  Core networking is is created via a virtual network with three 'children' subnets from it. These three subnets will be used in a manner similar to other Customer[0] architectures, where one is used for infrastructure, one for apps and one (or more) for PCF managed service tiles.
+The reference approach is to create a single Resource Group, populate it with the required Azure constructs and then deploy PCF with Pivotal Operations Manager.  Core networking is created via an Azure virtual network with three 'children' subnets. These three subnets will be used in a manner similar to other Customer[0] architectures, where one is used for infrastructure, one for apps and one (or more) for PCF managed service tiles.
 
 ### IaaS Architecture
 
