@@ -1,6 +1,6 @@
 #Pivotal Customer0 Azure Reference Architecture
 
-Summary: Customer0 Reference Architectures are utilized by Pivotal's Customer0 group to simulate a base deployment of our products that is common to as many customer use cases as possible. These architectures are then automated via concourse pipelines and 'validated' thru various Customer0 validation scenarios to simulate common customer use cases.
+__Summary__: Customer0 Reference Architectures are utilized by Pivotal's Customer0 group to simulate a base deployment of our products that is common to as many customer use cases as possible. These architectures are then automated via concourse pipelines and 'validated' thru various Customer0 validation scenarios to simulate common customer use cases.
 
 This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied.
 
@@ -15,14 +15,15 @@ Validation Key Info (STATUS=Draft WIP)
 
   ![](../static/azure/images/PCF-Azure-RefArch-Customer0.png)
 
-This model shows a single PCF deployment in a single Azure Resource Group. For HA deployment, create and deploy same on a second Resource Group.
+This model shows a single PCF deployment in a single Azure Resource Group. HA deployments can be achieved by creating and same topology in an additional Resource Group and globally load balancing across them (GSLB).
 
-The reference approach is to create a Resource Group, populate it with a virtual network and draw three subnets from it. These three subnets will be used in a manner similar to other Customer[0] architectures, where one is used for infrastructure, one for apps and one for service tiles.
+The reference approach is to create a single Resource Group, populate it with the required Azure constructs and then deploy PCF with Pivotal Operations Manager.  Core networking is is created via a virtual network with three 'children' subnets from it. These three subnets will be used in a manner similar to other Customer[0] architectures, where one is used for infrastructure, one for apps and one (or more) for PCF managed service tiles.
 
 ### IaaS Architecture
 
 In Azure, you will need some architectural constructs to deploy products in:
-  - (1) Service Principal account in a Azure Active Directory (ADD) application for BOSH to use to deploy PCF with [here](http://docs-pcf-review.cfapps.io/pivotalcf/1-8/customizing/azure-prepare-env.html)
+
+  - (1) Service Principal account in a Azure Active Directory (ADD) application for BOSH to use to deploy PCF with.  Documentation for creating the Service Principal can be found  [here](http://docs-pcf-review.cfapps.io/pivotalcf/1-8/customizing/azure-prepare-env.html)
   - (1) Resource Group per PCF installation. Duplicate this for for HA.
   - (\*) Availability Sets created by BOSH for each deployment job type
   - (1) Virtual Network (vnet) with a large range of address space that will be sub-divided
@@ -47,17 +48,22 @@ In Azure, you will need some architectural constructs to deploy products in:
     - Optional (1) HTTPS Ops Manager
 
 ### Network Topology
+_This section is currently in Progress_
 
-  ![]Image
+  ![]Image _Doc in Pogress_
 
   - NSGs
-    - [here](http://docs-pcf-review.cfapps.io/pivotalcf/1-8/customizing/azure-om-deploy.html)
+    - Documentaion for creating NSGs can found [here](http://docs-pcf-review.cfapps.io/pivotalcf/1-8/customizing/azure-om-deploy.html)
   - Application Security Groups
-  - Load Balancer Topology
-  - Private RFC versus Public IP Addresses
+    - _Doc in Pogress_
+  - Azure Load Balancer Topology
+    - _Doc in Pogress_
   - IaaS Specific VPN Architecture (Express Route/Home Grown VPN)
+    - _Doc in Pogress_
   - Azure API Manager * (Optional)
+     - _Doc in Pogress_
   - GSLB Setup * (Optional)
+     - _Doc in Pogress_
 
 ### Caveats and Concerns
 
