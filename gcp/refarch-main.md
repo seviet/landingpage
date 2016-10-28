@@ -7,17 +7,17 @@ __Summary__:  Customer0 Reference Architectures are utilized by Pivotal's Custom
 Validation Key Info (__STATUS__=*Not Yet Passing C0 Validation!!!*)
 
 | PCF Products Validated        | Version                   | Known Issues              |
-| -----------------------------:|:-------------------------|:-------------------------|
-| PCF Ops Manager               | 1.8.#	(Latest) | |
-| Elastic Runtime               | 1.8.# (Latest) | 1.8.8 ERT, Ops Manager places Routers in AZ3 to incorrect GCP backend.  AZ1 & AZ2 OK & smoke tests passing
-| Rabbit                        | 1.7.# (Latest) | |
-| Metrics                       | 1.1.# (Latest) | |
-| Mysql                         | 1.7.# (Latest) | |
-| Spring Cloud Services         | 1.2.# (Latest) | |
+| -----------------------------:|-------------------------:|:-------------------------|
+| PCF Ops Manager               | 1.8.9 (OCT 26 2016) | PASS |
+| Elastic Runtime               | 1.8.10 (OCT 26 2016) | 1.8.# ERT, Ops Manager places Routers in AZ3 to incorrect GCP backend.  AZ1 & AZ2 OK & smoke tests passing
+| Rabbit                        | 1.7.# (Latest) | NOT YET VALIDATED |
+| Metrics                       | 1.1.# (Latest) | NOT YET VALIDATED |
+| Mysql                         | 1.7.# (Latest) | NOT YET VALIDATED |
+| Spring Cloud Services         | 1.2.# (Latest) | NOT YET VALIDATED |
 
 ## IaaS Overview
 
-PCF on GCP Reference Architecture Overview (*c0-gcp-base*):![c0-gcp-base v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
+PCF on GCP Reference Architecture Overview (*c0-gcp-base*):![c0-gcp-base v1.0](../static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
 
 - [Pipeline Repo Link](https://github.com/c0-ops/gcp-concourse)
 - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-gcp-deploy-ert-base)
@@ -71,7 +71,7 @@ Default quotas on a new GCP subscription will not have enough quota for a typica
 
 ## Network Topology
 
-PCF on GCP Base Network Topology (*c0-gcp-base*):![v1.0](https://github.com/c0-ops/landingpage/blob/master/static/gcp/images/PCF-GCP-RefArch-Overview/net-topology-base.png)
+PCF on GCP Base Network Topology (*c0-gcp-base*):![v1.0](../static/gcp/images/PCF-GCP-RefArch-Overview/net-topology-base.png)
 
 Explain Base Network Architecture & GCP Objects
 
