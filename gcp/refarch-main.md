@@ -1,10 +1,15 @@
 #Pivotal Customer0 _PCF on GCP_ Reference Architecture
 
-__Summary__:  Customer0 Reference Architectures are utilized by Pivotal's Customer0 group to _simulate_ a base deployment of our products that is common to as many customer use cases as possible.  These architectures are then automated via concourse pipelines and "validates' thru various customer0 validation scenarios to simulate common customer use cases.
+*__Goal__*:  Customer0 Reference Architectures are utilized by Pivotal's Customer0 group to _simulate_ a base deployment of our products that is common to as many customer use cases as possible.  These architectures are then automated via concourse pipelines and _'validated'_ thru various customer0 validation scenarios to simulate typical customer use cases.
 
-*__This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied__*.
+######* Customer0[Typical Customer] * = _A secured but publicly accessible PCF Foundation, capable of hosting ~100 Application instances with PCF managed Services: "Mysql, RabbitMQ, Pivotal Spring Cloud Services"_
 
-Validation Key Info (__STATUS__=*Not Yet Passing C0 Validation!!!*)
+*__Non-Goals__*:
+
+- This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied!.
+- This document is NOT intended to replace basic installation documentation located @ [http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html), but rather to demonstrate how those instructions should be related to a typical/recommended Pivotal Cloud Foundry Installation.
+
+*__Validation Key Info__*: (STATUS=Not Yet Passing C0 Validation)
 
 | PCF Products Validated        | Version                   | Known Issues              |
 | -----------------------------:|-------------------------:|:-------------------------|
@@ -15,15 +20,15 @@ Validation Key Info (__STATUS__=*Not Yet Passing C0 Validation!!!*)
 | Mysql                         | 1.7.# (Latest) | NOT YET VALIDATED |
 | Spring Cloud Services         | 1.2.# (Latest) | NOT YET VALIDATED |
 
-## IaaS Overview
+## Reference Architecture IaaS Overview
 
 PCF on GCP Reference Architecture Overview (*c0-gcp-base*):![c0-gcp-base v1.0](../static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
 
-- [Pipeline Repo Link](https://github.com/c0-ops/gcp-concourse)
-- [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-gcp-deploy-ert-base)
+- [Pipeline Repo Link](https://github.com/c0-ops/gcp-concourse) : Customer0 Concourse Pipelines
+- [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-gcp-deploy-ert-base) : See the Running Customer0 Concourse Pipelines
 
 
-PCF on GCP requires the following GCP Components:
+###__PCF on GCP requires the following GCP Components__:
 
 ##### Project/Region/Zones
 
