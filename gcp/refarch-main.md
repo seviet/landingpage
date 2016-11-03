@@ -22,7 +22,7 @@
 
 ## Reference Architecture IaaS Overview
 
-PCF on GCP Reference Architecture Overview (*c0-gcp-base*):![c0-gcp-base v1.0](../static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
+PCF on GCP Reference Architecture Overview (*c0-gcp-base*):![c0-gcp-base v1.0.1](../static/gcp/images/PCF-GCP-RefArch-Overview/overview-arch.png)
 
 - [Pipeline Repo Link](https://github.com/c0-ops/gcp-concourse) : Customer0 Concourse Pipelines
 - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-gcp-deploy-ert-base) : See the Running Customer0 Concourse Pipelines
@@ -89,7 +89,7 @@ Best practice PCF on GCP deployments requires 2 "Service Accounts"
 		
 #####Networks
 
-[Terraform Network Objects](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/2_networks.tf)
+Review Pipeline Network objects here: [C0 GCP Pipeline Terraform Network Objects](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/2_networks.tf)
 
 GCP Network objects allow multiple subnets with multiple CIDRs , so a typical deployment of PCF will likely only ever require 1 GCP Network object as well as 1 or more of the following:
 
@@ -114,9 +114,17 @@ GCP Network objects allow multiple subnets with multiple CIDRs , so a typical de
 
 #####FireWall Rules
 
-[Terraform FW Rules](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/3_firewalls.tf)
+Review Pipeline Rules here:[C0 GCP Pipeline Terraform FW Rules](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/3_firewalls.tf)
 
-- Rules
+![rules_and_tags v1.0.0](../static/gcp/images/PCF-GCP-RefArch-Overview/firewall-rules.png)
+
+GCP Firewall rules are bound to a Network object and can be created use any of the following objects as a match for source & destination fields in a rule:
+
+- [IP range/Any], basically a specific cidr or 0.0.0.0/0 in the case of any
+- [Subnetworks], selecting a subnet that a GCP instance is attached to will apply as a match
+- [Instance Tags], All PCF jobs get a default_deployment tag as well as additional tags, like job specific tag ["router", "diego-brain", "cell", "etc..."]
+
+Instance tags are the preferred method of Firewall Rules/ACLs in the Customer0 Reference Architecture.   In the image above, irrespective of the subnet ranges applied, traffic can be controlled.   Traffic that does not match a rule that is explicitly allowed,  will be dropped.  For example, in the image above,  ssh attempts to TCP:22 routed to the 'Diego Brain' job will fail as only TCP:2222 has been allowed via a rule.   Since the 'Diego Brain' has no tag matching an 'allow' rule,  it will be dropped.
 
 
 #####Load Balancing
