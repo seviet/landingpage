@@ -67,16 +67,13 @@ Default quotas on a new GCP subscription will not have enough quota for a typica
 
 Best practice PCF on GCP deployments requires 2 "Service Accounts"
 
-1. Operator Account -> "For Terraforming"
-
-   <iframe type="text/plain" width="700" height="315" src="http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html#gcp" border="1"></iframe> 
+1. Operator Account -> "For Terraforming" 
 
    - Prior to deploying PCF on GCP, you will need a GCP account with proper permissions to create GCP objects via terraform.  Minimum permissions for this account can be found [here](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html#gcp).
 
    
 2. IAM Service Account -> "For OpsMan/BOSH"
 
- <iframe type="text/plain" width="700" height="315" src="http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#iam_account" border="1"></iframe> 
 
    - Ops Manager will require you to select 1 of 2 approaches for a service account for BOSH & bosh-init to use for deployments.
 
@@ -92,9 +89,26 @@ Best practice PCF on GCP deployments requires 2 "Service Accounts"
 		
 #####Networks
 
+GCP Network objects allow multiple subnets with multiple CIDRs , so a typical deployment of PCF will likely only ever require 1 GCP Network object as well as 1 or more of the following:
+
 - Subnets 
+
+	A minimum of 3 subnets are recommended:
+	
+	1. **"infrastructure"** (/26) <->  This network will host: 
+		- _["OpsManager","Director(aka BOSH)","Jumpbox"]_
+	2. **"ert"** (/22) <-> This network will host the core instances of cloud foundry like
+	   - _["GoRouters","Diego Cells","Cloud Controllers". "etc..."]_
+	3. **"services-#"** (/22) <->  This network ,as well as additional service networks, will host PCF managed service tiles like  
+		- _["Rabbit","Mysql","Sprin Cloud Services". "etc..."]_
+
 - Routes
+
+	
+
 - External IPs
+
+	
 
 [Terraform Network Objects](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/2_networks.tf)
 
