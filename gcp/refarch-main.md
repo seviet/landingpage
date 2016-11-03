@@ -118,13 +118,13 @@ Review Pipeline Rules here:[C0 GCP Pipeline Terraform FW Rules](https://raw.gith
 
 ![rules_and_tags v1.0.0](../static/gcp/images/PCF-GCP-RefArch-Overview/firewall-rules.png)
 
-GCP Firewall rules are bound to a Network object and can be created use any of the following objects as a match for source & destination fields in a rule:
+GCP Firewall rules are bound to a Network object and can be created to use any of the following objects as a match for source & destination fields in a rule:
 
-- [IP range/Any], basically a specific cidr or 0.0.0.0/0 in the case of any
-- [Subnetworks], selecting a subnet that a GCP instance is attached to will apply as a match
-- [Instance Tags], All PCF jobs get a default_deployment tag as well as additional tags, like job specific tag ["router", "diego-brain", "cell", "etc..."]
+- *[IP range/Any]*, basically a specific cidr or 0.0.0.0/0 in the case of any
+- *[Subnetworks]*, selecting a subnet that a GCP instance is attached to will apply as a match
+- *[Instance Tags]*, All PCF jobs get a default_deployment tag as well as additional tags, like job specific tag ["router", "diego-brain", "cell", "etc..."]
 
-Instance tags are the preferred method of Firewall Rules/ACLs in the Customer0 Reference Architecture.   In the image above, irrespective of the subnet ranges applied, traffic can be controlled.   Traffic that does not match a rule that is explicitly allowed,  will be dropped.  For example, in the image above,  ssh attempts to TCP:22 routed to the 'Diego Brain' job will fail as only TCP:2222 has been allowed via a rule.   Since the 'Diego Brain' has no tag matching an 'allow' rule,  it will be dropped.
+Instance tags are the preferred method of applying Firewall rules/ACLs in the Customer0 Reference Architecture.   In the image above, irrespective of the subnet ranges applied, traffic can be controlled with the use of tags.   Traffic that does not match the source & destination of a rule that is explicitly 'allowed',  will be dropped.  For example, in the image above,  ssh attempts to TCP:22 routed to the 'Diego Brain' job will fail as only TCP:2222 has been allowed via a rule and a matching tag.   Since the 'Diego Brain' has no tag matching an 'allow' rule for TCP:22,  traffic  will be dropped.
 
 
 #####Load Balancing
