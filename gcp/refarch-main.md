@@ -89,34 +89,35 @@ Best practice PCF on GCP deployments requires 2 "Service Accounts"
 		
 #####Networks
 
+[Terraform Network Objects](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/2_networks.tf)
+
 GCP Network objects allow multiple subnets with multiple CIDRs , so a typical deployment of PCF will likely only ever require 1 GCP Network object as well as 1 or more of the following:
 
-- Subnets 
+- **Subnets** 
 
 	A minimum of 3 subnets are recommended:
 	
-	1. **"infrastructure"** (/26) <->  This network will host: 
+	1. *"infrastructure"* (/26) <->  This network will host: 
 		- _["OpsManager","Director(aka BOSH)","Jumpbox"]_
-	2. **"ert"** (/22) <-> This network will host the core instances of cloud foundry like
+	2. *"ert"* (/22) <-> This network will host the core instances of cloud foundry like
 	   - _["GoRouters","Diego Cells","Cloud Controllers". "etc..."]_
-	3. **"services-#"** (/22) <->  This network ,as well as additional service networks, will host PCF managed service tiles like  
-		- _["Rabbit","Mysql","Sprin Cloud Services". "etc..."]_
+	3. *"services-#"* (/22) <->  This network ,as well as additional service networks, will host PCF managed service tiles like  
+		- _["Rabbit","Mysql","Spring Cloud Services". "etc..."]_
 
-- Routes
+- **Routes**
+
+	Routes are typically created by GCP dynamically when subnets are created,  but C0 terraform scripts create additional routes to force outbound communication to dedicated SNAT nodes.  These objects are required to deploy PCF without public IP addresses.  (see Network Topology image)
+
+- **External IPs**
 
 	
-
-- External IPs
-
-	
-
-[Terraform Network Objects](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/2_networks.tf)
 
 #####FireWall Rules
 
+[Terraform FW Rules](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/3_firewalls.tf)
+
 - Rules
 
-[Terraform FW Rules](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/3_firewalls.tf)
 
 #####Load Balancing
 - Forwarding Rules
