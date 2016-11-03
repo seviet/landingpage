@@ -71,7 +71,7 @@ Best practice PCF on GCP deployments requires 2 "Service Accounts"
 
    - Prior to deploying PCF on GCP, you will need a GCP account with proper permissions to create GCP objects via terraform.  Minimum permissions for this account can be found [here](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html#gcp).
    
-2. IAM Service Account -> "for OpsMan/BOSH"
+2. IAM Service Account -> "For OpsMan/BOSH"
 
    - Ops Manager will require you to select 1 of 2 approaches for a service account for BOSH & bosh-init to use for deployments.
 
@@ -86,6 +86,9 @@ Best practice PCF on GCP deployments requires 2 "Service Accounts"
 		*Note*: C0 pipeline does not currently utilize 2 service accounts.  This will be modified soon to allow the pipeline to be fully portable and simulate a customer deployment with limited creds on service accounts.
 		
 #####Networks
+
+<iframe width="600" height="400" src="https://api.github.com/repos/c0-ops/gcp-concourse/contents/terraform/c0-gcp-base/2_networks.tf" frameborder="0" allowfullscreen></iframe> 
+
 - Subnets 
 - Routes
 - External IPs
@@ -120,17 +123,17 @@ Explain Base Network Architecture & GCP Objects
     - 	TCP
     -  HTTPS
 
-## Variants to Reference Architecture
+## Variants to BAse Reference Architecture
 
-Will Variant Image(s) here:![alt text](https://d1fto35gcfffzn.cloudfront.net/images/header/Pivotal_WhiteOnTeal_RGB.svg "Network Arch Image")
+Will Insert Variant Image(s) here:
 
-Customer0 will 'validate' a limited number of variant scenarios from the base tolopology.
+Customer0 will 'validate' a limited number of variant scenarios from the base topology.
 
 | Variant *{{gcp_pcf_terraform_template}}*| Varient Description                   |
 | -----------------------------:|:-------------------------|
-|c0-gcp-nonat|Base template + No dedicated SNAT, default GCP instances each with Public IPs for SNAT| 
-|c0-gcp-private|Base template - All External IPs, no public IPs at all||
-|c0-gcp-ipsec|Base template + IPSEC add on||
+|c0-gcp-nonat|Base template (+) No dedicated SNAT, default GCP instances each with Public IPs for SNAT| 
+|c0-gcp-private|Base template (-) All External IPs, no public IPs at all||
+|c0-gcp-ipsec|Base template (+) IPSEC add on||
 |c0-gcp-gslb|2 x Base templates deployments Globally load balanced||
 
   
@@ -154,15 +157,6 @@ Min-Reqs to run the Pipleine ...
 
 (ToDo) Document What Customer0 Validates * (Future html link to validation repos) ...
 
-Pipeline Job/Tasks
-```
-Links to Relevant Pipeline Code
-```
-
-Pipeline Job/Tasks
-```
-Links to Relevant Pipeline Code
-```
 
 ##PCF on GCP Helpful Links
 
