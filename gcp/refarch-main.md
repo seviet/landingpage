@@ -14,7 +14,7 @@
 | PCF Products Validated        | Version                  | Known Issues              |
 | -----------------------------:|:-------------------------|:-------------------------|
 | PCF Ops Manager               | 1.8.10.0 (Nov 2 2016)    | PASS |
-| Elastic Runtime               | 1.8.10 (Nov 2 2016       | PASS |
+| Elastic Runtime               | 1.8.12 (Nov 3 2016       | PASS |
 | Rabbit                        | 1.7.6 (Nov 2 2016)       | PASS |
 | Metrics                       | 1.1.# (Latest)           | NOT YET VALIDATED |
 | Mysql                         | 1.7.# (Latest)           | NOT YET VALIDATED |
