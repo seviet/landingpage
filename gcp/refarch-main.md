@@ -149,7 +149,7 @@ Explain Base Network Architecture & GCP Objects
     - 	TCP
     -  HTTPS
 
-## Variants to BAse Reference Architecture
+## Variants to Base Reference Architecture
 
 Will Insert Variant Image(s) here:
 
