@@ -69,9 +69,14 @@ Best practice PCF on GCP deployments requires 2 "Service Accounts"
 
 1. Operator Account -> "For Terraforming"
 
+   <iframe type="text/plain" width="700" height="315" src="http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html#gcp" border="1"></iframe> 
+
    - Prior to deploying PCF on GCP, you will need a GCP account with proper permissions to create GCP objects via terraform.  Minimum permissions for this account can be found [here](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html#gcp).
+
    
 2. IAM Service Account -> "For OpsMan/BOSH"
+
+ <iframe type="text/plain" width="700" height="315" src="http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#iam_account" border="1"></iframe> 
 
    - Ops Manager will require you to select 1 of 2 approaches for a service account for BOSH & bosh-init to use for deployments.
 
@@ -86,8 +91,6 @@ Best practice PCF on GCP deployments requires 2 "Service Accounts"
 		*Note*: C0 pipeline does not currently utilize 2 service accounts.  This will be modified soon to allow the pipeline to be fully portable and simulate a customer deployment with limited creds on service accounts.
 		
 #####Networks
-
-<iframe width="600" height="400" src="https://api.github.com/repos/c0-ops/gcp-concourse/contents/terraform/c0-gcp-base/2_networks.tf" frameborder="0" allowfullscreen></iframe> 
 
 - Subnets 
 - Routes
