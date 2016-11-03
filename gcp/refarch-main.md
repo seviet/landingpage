@@ -9,16 +9,16 @@
 - This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied!.
 - This document is NOT intended to replace basic installation documentation located @ [http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html), but rather to demonstrate how those instructions should be related to a typical/recommended Pivotal Cloud Foundry Installation.
 
-*__Validation Key Info__*: (STATUS=Not Yet Passing C0 Validation)
+*__Validation Key Info__*: (STATUS=Validation In Progress)
 
-| PCF Products Validated        | Version                   | Known Issues              |
-| -----------------------------:|-------------------------:|:-------------------------|
-| PCF Ops Manager               | 1.8.9 (OCT 26 2016) | PASS |
-| Elastic Runtime               | 1.8.10 (OCT 26 2016) | 1.8.# ERT, Ops Manager places Routers in AZ3 to incorrect GCP backend.  AZ1 & AZ2 OK & smoke tests passing
-| Rabbit                        | 1.7.# (Latest) | NOT YET VALIDATED |
-| Metrics                       | 1.1.# (Latest) | NOT YET VALIDATED |
-| Mysql                         | 1.7.# (Latest) | NOT YET VALIDATED |
-| Spring Cloud Services         | 1.2.# (Latest) | NOT YET VALIDATED |
+| PCF Products Validated        | Version                  | Known Issues              |
+| -----------------------------:|:-------------------------|:-------------------------|
+| PCF Ops Manager               | 1.8.10.0 (Nov 2 2016)    | PASS |
+| Elastic Runtime               | 1.8.10 (Nov 2 2016       | PASS |
+| Rabbit                        | 1.7.6 (Nov 2 2016)       | PASS |
+| Metrics                       | 1.1.# (Latest)           | NOT YET VALIDATED |
+| Mysql                         | 1.7.# (Latest)           | NOT YET VALIDATED |
+| Spring Cloud Services         | 1.2.# (Latest)           | NOT YET VALIDATED |
 
 ## Reference Architecture IaaS Overview
 
@@ -41,33 +41,66 @@ Pivotal Ops Manager & BOSH will utilize the Google Compute Engine API, it must b
 
 #####Quotas
 
-Default quotas on a new GCP subscription will not have enough quota for a typical PCF deployment.  This Reference Architecture has been sized to host ~300 typical Cloud Foundry AIs.   You should request a Quota increase for the following Objects:
+Default quotas on a new GCP subscription will not have enough quota for a typical PCF deployment.  This Reference Architecture has been sized to host ~100 typical Cloud Foundry AIs.   You should request a Quota increase for the following Objects:
 
-| Resource        | Suggested Limit                   |
+| Resource        | Suggested Min Limit                   |
 | ----------------------------- |:-------------------------:|
-| CPUs *Region Specific*		|#|
-| Firewall Rules				   |#|
-| Forwarding Rules				   |#|
-| Health Checks				   |#|
-| Images				   |#|
-| Static IP Addresses *Region Specific*   |#|
-| IP Addresses Global				   |#|
-| IP Addresses *Region Specific*		|#|
-| Networks *Region Specific*		|#|
-| Subnetworks		|#|
-| Routes		|#|
-| Target Pools		|#|
-| Total persistent disk reserved (GB) *Region Specific* |#|
+| CPUs *Region Specific*					|150|
+| Firewall Rules				   				|15|
+| Forwarding Rules				   			|5|
+| Global Forwarding Rules					|5|
+| Global Backend Services					|5|
+| Health Checks				   				|10|
+| Images				   						|10|
+| Static IP Addresses *Region Specific* & Assuming SNAT topology|5|
+| IP Addresses Global				   		|5|
+| IP Addresses *Region Specific*	& Assuming SNAT topology|5|
+| Networks 									|5|
+| Subnetworks									|5|
+| Routes										|20|
+| Target Pools								|10|
+| Target HTTP Proxies Global				|5|
+| Target HTTPS Proxies Global				|5|
+| Total persistent disk reserved (GB) *Region Specific* | 15,000 |
 
 #####Service Accounts
+
+Best practice PCF on GCP deployments requires 2 "Service Accounts"
+
+1. Operator Account -> "For Terraforming"
+
+   - Prior to deploying PCF on GCP, you will need a GCP account with proper permissions to create GCP objects via terraform.  Minimum permissions for this account can be found [here](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html#gcp).
+   
+2. IAM Service Account -> "for OpsMan/BOSH"
+
+   - Ops Manager will require you to select 1 of 2 approaches for a service account for BOSH & bosh-init to use for deployments.
+
+		- `AuthJSON`
+
+			This option requires that the operator create an IAM svc account with appropriate permissions documented [here](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#iam_account).  This is the preferred method of Customer0 Engineers & Reference architecture.
+
+		- `The Ops Manager VM Service Account`
+
+			This option polls the GCP api to get the service account `email|id` of the service account & scopes that were assigned when the OpsManager VM was created and leverages that account.  This method requires the service account have the _Project > Service Account Actor_ role
+
+		*Note*: C0 pipeline does not currently utilize 2 service accounts.  This will be modified soon to allow the pipeline to be fully portable and simulate a customer deployment with limited creds on service accounts.
+		
 #####Networks
 - Subnets 
 - Routes
 - External IPs
 
+[Terraform Network Objects](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/2_networks.tf)
+
 #####FireWall Rules
+
+- Rules
+
+[Terraform FW Rules](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/3_firewalls.tf)
+
 #####Load Balancing
 - Forwarding Rules
+
 - Target Pools
 - Health Checks
  
