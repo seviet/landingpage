@@ -14,7 +14,7 @@
 | PCF Products Validated        | Version                  | Known Issues              |
 | -----------------------------:|:-------------------------|:-------------------------|
 | PCF Ops Manager               | 1.8.10.0 (Nov 2 2016)    | PASS |
-| Elastic Runtime               | 1.8.12 (Nov 3 2016       | SmokeTests=PASS; CATs=6 Failures |
+| Elastic Runtime               | 1.8.13 (Nov 6 2016       | SmokeTests=PASS; CATs=6 Failures |
 | Rabbit                        | 1.7.6 (Nov 2 2016)       | PASS |
 | Metrics                       | 1.1.# (Latest)           | NOT YET VALIDATED |
 | Mysql                         | 1.7.# (Latest)           | NOT YET VALIDATED |
@@ -128,13 +128,40 @@ Instance tags are the preferred method of applying Firewall rules/ACLs in the Cu
 
 
 #####Load Balancing
-- Forwarding Rules
 
-- Target Pools
+PCF on GCP requires multiple load balancing services types.  The first type is the **_"HTTP"_** load balancer which is leveraged for API/Application access to Cloud Foundry.  It is a very scalable and globally capable resource which does support SSL termination as well as required header sets to forward HTTP/HTTPS traffic direct to the Cloud Foundry  'GoRouter' jobs.   This is why 'ha_proxy' jobs are not necessary in a GCP deployment.  Currently, **HTTP load balancers DO NOT SUPPORT WEBSOCKETS!!!**, this is important in that doppler/loggregator endpoints require websockets, so improperly configure load banacing topologies will not allow 'cf logs' to function. The GCP refarch splits log traffic to another GCP router type (TCP) as shown in the "Network Topology" diagram in this refarch documentation.  Additionally, this is why the GoRouters perform SSL termination as well as the HTTP load balancers, so that log traffic can be encrypted.
+
+The second key type of GCP load balancer PCF will us is the **_"TCP"_** variant.  It cannot perform advanced URL functions, nor can it terminate SSL,  but is a very capable TCP load balancer for Cloud Foundry to leverage as proxy services for:
+
+1. Websockets based 'cf logs' traffic (Required)
+2. Diego-Brain ssh-proxy services for 'cf ssh' traffic (Optional)
+3. Cloud Foundry TCP Load Balancing Services (Optional)
+
+GCP load balancing services are comprised of multiple components you will see deployed as part of the Customer0 Terraform Scripts:
+
+- Forwarding Rules:
+  - These rules can be either 'Global' for use with HTTP load balancing or local for use with TCP load balancing.
+  - 'Global' forwarding rules (Used by HTTP LB) map a front end IP address & TCP port to a 'target proxy'.
+  - Local forwarding rules (Used by TCP LB) map a front end IP address & TCP port to a 'target pool'
+
+- Target Proxy(s) (Used by HTTP LB)
+  - Maps a URL linked to the Front End IP to a 'Backend Service'
+
+- Backend Service(s) (Used by HTTP LB)
+  - Bind a 'Health Check' as well as an 'Instance Group' to accept forwarded traffic from the Global-Forwarding-Rule(s)->Target-Proxy(s)->Url_Map(s).  The 'Instance Group' is typically comprised of the Cloud Foundry 'GoRouter' jobs.
+
+- Certificate(s) (Used by HTTP LB)
+  - Certs for Client SSL termination when accessing the Cloud Foundry API or Cloud Foundry hosted applications.
+
+- Target Pool(s) (Used by TCP LB)
+  - Bind a 'Health Check' as well as 1 or more instances/jobs to accept traffic from a Local-Forwarding-Rule.  These can be various jobs depending on the Forwarding rule,  for example, the 'ssh-proxy' forward rule will map to a target pool consisting of 'Diego-Brain' jobs and a health check for TCP:2222.
+
 - Health Checks
+  - Define how HTTP & TCP load balancing services determine is a node is healthy or not to accept forwarded traffic.
  
 #####Instance Groups
 #####Images
+#####Google Cloud Storage Bucket(s) & Token(s)
 
 ## Network Topology
 
@@ -174,8 +201,9 @@ Min-Reqs to run the Pipleine ...
 1. Appropriate GCP Quotas
 2. [GCP Service Account](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#iam_account)
 3. [Enable GCP APIs](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp-prepare-env.html#enable_compute_resource_api)
-4. A resolvable/registered DNS domain for Cloud Foundry `system` & `apps` domains
-5. A [Concourse](https://concourse.ci/) instance with workers that have public access.
+4. Google Cloud Storage Access Token
+5. A resolvable/registered DNS domain for Cloud Foundry `system` & `apps` domains
+6. A [Concourse](https://concourse.ci/) instance with workers that have public access.
 
 (ToDo) Document How to use the pipeline in a POC scenario ...
 
