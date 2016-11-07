@@ -6,8 +6,8 @@
 
 *__Non-Goals__*:
 
-- This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied!.
-- This document is NOT intended to replace basic installation documentation located @ [http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html), but rather to demonstrate how those instructions should be related to a typical/recommended Pivotal Cloud Foundry Installation.
+- This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied!
+- This document is NOT intended to replace the basic installation documentation located @ [http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html](http://docs.pivotal.io/pivotalcf/1-8/customizing/gcp.html), but rather to demonstrate how those instructions should be related to a typical/recommended Pivotal Cloud Foundry Installation on GCP.
 
 *__Validation Key Info__*: (STATUS=Validation In Progress)
 
@@ -99,14 +99,14 @@ GCP Network objects allow multiple subnets with multiple CIDRs , so a typical de
 	
 	1. *"infrastructure"* (/26) <->  This network will host: 
 		- _["OpsManager","Director(aka BOSH)","Jumpbox"]_
-	2. *"ert"* (/22) <-> This network will host the core instances of cloud foundry like
-	   - _["GoRouters","Diego Cells","Cloud Controllers". "etc..."]_
-	3. *"services-#"* (/22) <->  This network ,as well as additional service networks, will host PCF managed service tiles like  
-		- _["Rabbit","Mysql","Spring Cloud Services". "etc..."]_
+	2. *"ert"* (/22) <-> This network will host the core instances of cloud foundry:
+	   - _["GoRouters","Diego Cells","Cloud Controllers", "etc..."]_
+	3. *"services-#"* (/22) <->  This network ,as well as additional service networks, will host PCF managed service tiles:
+		- _["Rabbit","Mysql","Spring Cloud Services", "etc..."]_
 
 - **Routes**
 
-	Routes are typically created by GCP dynamically when subnets are created,  but C0 terraform scripts create additional routes to force outbound communication to dedicated SNAT nodes.  These objects are required to deploy PCF without public IP addresses.  (see Network Topology image)
+	Routes are typically created by GCP dynamically when subnets are created, but C0 terraform scripts create additional routes to force outbound communication to dedicated SNAT nodes.  These objects are required to deploy PCF without public IP addresses.  (see Network Topology image)
 
 - **External IPs**
 
@@ -124,7 +124,7 @@ GCP Firewall rules are bound to a Network object and can be created to use any o
 - *[Subnetworks]*, selecting a subnet that a GCP instance is attached to will apply as a match
 - *[Instance Tags]*, All PCF jobs get a default_deployment tag as well as additional tags, like job specific tag ["router", "diego-brain", "cell", "etc..."]
 
-Instance tags are the preferred method of applying Firewall rules/ACLs in the Customer0 Reference Architecture.   In the image above, irrespective of the subnet ranges applied, traffic can be controlled with the use of tags.   Traffic that does not match the source & destination of a rule that is explicitly 'allowed',  will be dropped.  For example, in the image above,  ssh attempts to TCP:22 routed to the 'Diego Brain' job will fail as only TCP:2222 has been allowed via a rule and a matching tag.   Since the 'Diego Brain' has no tag matching an 'allow' rule for TCP:22,  traffic  will be dropped.
+Instance tags are the preferred method of applying Firewall rules/ACLs in the Customer0 Reference Architecture. In the image above, irrespective of the subnet ranges applied, traffic can be controlled with the use of tags. Traffic that does not match the source & destination of a rule that is explicitly 'allowed' will be dropped. For example, in the image above, ssh attempts to connect to TCP:22 routed to the 'Diego Brain' job will fail as only TCP:2222 has been allowed via a rule and a matching tag. Since the 'Diego Brain' has no tag matching an 'allow' rule for TCP:22, traffic  will be dropped.
 
 
 #####Load Balancing
@@ -146,7 +146,7 @@ Explain Base Network Architecture & GCP Objects
   - GCP Project SSH Topology
   - Application Security Groups
   - Load Balancer Topology
-    - 	TCP
+    -  TCP
     -  HTTPS
 
 ## Variants to Base Reference Architecture
