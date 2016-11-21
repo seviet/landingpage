@@ -28,85 +28,66 @@ PCF on AWS Reference Architecture Overview (*c0-aws-base*):![c0-aws-base v1.0.1]
 - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-aws-deploy-ert-base) : See the Running Customer0 Concourse Pipelines
 
 
-###__PCF on GCP requires the following AWS Components__:
+### __PCF on AWS requires the following AWS Components__:
 
-##### Project/Region/Zones
+##### VPC/Region/AZ/Subnet
 
-A Cloud Foundry Deployment will exist within a single Project.  It will be located in a single AWS region and should distribute Cloud Foundry Jobs/Instances across 3 AWS zones to ensure a high degree of availability.  Each AWS Zone will map to a Cloud Foundry Availability Zone
+A Cloud Foundry Deployment will exist within a single VPC.  It will be located in a single AWS region and should distribute Cloud Foundry Jobs/Instances across 3 AWS Availability Zone to ensure a high degree of availability.  Each AWS subnet maps to one subnet.
 
-##### Google Cloud API
+##### EC2 Instance Quota
 
-Pivotal Ops Manager & BOSH will utilize the Google Compute Engine API, it must be enabled on a new Google Cloud subscription as it is not enabled by default
+Default quota on a new AWS subscription only has around 20 EC2 instances, which is not enough to host a multi-az deployment.
+The recommend quota for EC2 instances is 100. AWS require the instances quota tickets to include Primary Instance Types, which should be t2.micro
 
-
-#####Quotas
-
-Default quotas on a new AWS subscription will not have enough quota for a typical PCF deployment.  This Reference Architecture has been sized to host ~100 typical Cloud Foundry AIs.   You should request a Quota increase for the following Objects:
-
-| Resource        | Suggested Min Limit                   |
-| ----------------------------- |:-------------------------:|
-| CPUs *Region Specific*					|150|
-| Firewall Rules				   				|15|
-| Forwarding Rules				   			|5|
-| Global Forwarding Rules					|5|
-| Global Backend Services					|5|
-| Health Checks				   				|10|
-| Images				   						|10|
-| Static IP Addresses *Region Specific* & Assuming SNAT topology|5|
-| IP Addresses Global				   		|5|
-| IP Addresses *Region Specific*	& Assuming SNAT topology|5|
-| Networks 									|5|
-| Subnetworks									|5|
-| Routes										|20|
-| Target Pools								|10|
-| Target HTTP Proxies Global				|5|
-| Target HTTPS Proxies Global				|5|
-| Total persistent disk reserved (GB) *Region Specific* | 15,000 |
-
-#####Service Accounts
+##### Service Accounts
 
 Best practice PCF on AWS deployments requires 2 "Service Accounts"
 
-1. Operator Account -> "For Terraforming"
+1. Admin Account -> "For Terraforming"
 
-   - ? Need to work on.
+   - Terraform will use this admin account to provision required AWS resources as well as an IAM service account
 
 
 2. IAM Service Account -> "For OpsMan/BOSH"
 
-   - ? Need to work on
+   - The service account will be automatically provisioned with restricted access only to PCF needed resources. [C0 AWS IAM ](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/iam.tf)
 
 #####Networks
 
-Review Pipeline Network objects here: [C0 AWS Pipeline Terraform Network Objects](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/2_networks.tf)
+Review Pipeline Network objects here: [C0 AWS Pipeline Terraform Network Objects](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/vpc.tf#L25)
 
-AWS Network objects allow multiple subnets with multiple CIDRs , so a typical deployment of PCF will likely only ever require 1 AWS Network object as well as 1 or more of the following:
+Each AWS subnet is tight to a particular AZ. As a result a multi-AZ deployment topologies require corresponding multi-subnets
 
 - **Subnets**
 
-	A minimum of 3 subnets are recommended:
-
-  ? Need to work on
-
-	1. *"infrastructure"* (/26) <->  This network will host:
-		- _["OpsManager","Director(aka BOSH)","Jumpbox"]_
-	2. *"ert"* (/22) <-> This network will host the core instances of cloud foundry:
+	1. 1 *"public"* subnet <->  This network will host:
+		- _["OpsManager","Director(aka BOSH), "NAT Boxes"]_
+	2. 3 *"ert"* (/24) subnets <-> These networks will host the core instances of cloud foundry:
 	   - _["GoRouters","Diego Cells","Cloud Controllers", "etc..."]_
-	3. *"services-#"* (/22) <->  This network ,as well as additional service networks, will host PCF managed service tiles:
-		- _["Rabbit","Mysql","Spring Cloud Services", "etc..."]_
+	3. 3 *"services-#"* subnets <->  These networks ,as well as additional service networks, will host PCF managed service tiles:
+  	 - _["Rabbit","Mysql","Spring Cloud Services", "etc..."]_
+  4. 3 *"RDS"* subnets <->  These networks will hosts the PCF management databases:
+     - _["Cloud Controller DB","UAA DB","etc..."]_   
 
 - **Routes**
 
-  ? - Need to work on
-	Routes are typically created by AWS dynamically when subnets are created, but C0 terraform scripts create additional routes to force outbound communication to dedicated SNAT nodes.  These objects are required to deploy PCF without public IP addresses.  (see Network Topology image)
+	Routes are created by AWS terraform pipeline that associates to each subnet:
+
+  * PublicSubnetRouteTable
+    This routing table enable the ingress/egress routing from/to internet through internet gateway for OpsManager, NAT Boxes
+  * PrivateSubnetRouteTable
+    This routing table enable the egress routing to the internet through the NAT boxes
+
+  *Note*: If an EC2 instance sits on a subnet attached with an Internet gateway as well as a public IP, it is ingress accessible from the internet. E.g. OpsManager
+
 
 - **External IPs**
 
 
 
-#####FireWall Rules
+#####Security Groups
 
-Review Pipeline Rules here:[C0 GCP Pipeline Terraform FW Rules](https://raw.githubusercontent.com/c0-ops/gcp-concourse/master/terraform/c0-gcp-base/3_firewalls.tf)
+Review Pipeline Security Group here:[C0 AWS Pipeline Terraform Security Group Rules](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/security_group.tf)
 
 ![rules_and_tags v1.0.0](../static/gcp/images/PCF-GCP-RefArch-Overview/firewall-rules.png)
 
