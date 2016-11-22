@@ -114,7 +114,7 @@ PCF on AWS requires Elastic Load Balancer (ELB). It can be configured with multi
 This table describes required listeners:
 
 |ELB|Instance/Port | LB Port|Protocol|Description |
-|-----------------------------:|:-------------------------|:-------------------------|:-------------------------|
+|-----------------------------:|:-------------------------|:-------------------------|:-------------------------|:-------------------------|
 |PcfElb|gorouter/80|80|http|Forward Traffic to gorouter|
 ||gorouter/80|443|https|SSL Termination and forward traffic to gorouter|
 ||gorouter/80|4443|ssl|SSL Termination and forward traffic to gorouter|
