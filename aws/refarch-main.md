@@ -54,12 +54,11 @@ Best practice PCF on AWS deployments requires 2 "Service Accounts"
 
   1. 1 *"Infrastructure"* subnet <->  This network will host:
     - _["Bosh Director"]_
-
-	2. 3 *"public"* subnets <->  These networks will host:
+  2. 3 *"public"* subnets <->  These networks will host:
 		- _["OpsManager", "Elastic Load Balancers", "NAT Instances"]_
-	3. 3 *"ert"* subnets <-> These networks will host the core instances of cloud foundry:
+  3. 3 *"ert"* subnets <-> These networks will host the core instances of cloud foundry:
 	   - _["GoRouters","Diego Cells","Cloud Controllers", "etc..."]_
-	4. 3 *"services"* subnets <->  These networks ,as well as additional service networks, will host PCF managed service tiles:
+  4. 3 *"services"* subnets <->  These networks ,as well as additional service networks, will host PCF managed service tiles:
   	 - _["Rabbit","Mysql","Spring Cloud Services", "etc..."]_
   5. 3 *"RDS"* subnets <->  These networks will hosts the PCF management databases:
      - _["Cloud Controller DB","UAA DB","etc..."]_   
