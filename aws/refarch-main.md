@@ -63,7 +63,7 @@ Best practice PCF on AWS deployments requires 2 "Service Accounts"
   5. 3 *"RDS"* subnets <->  These networks will hosts the PCF management databases:
      - _["Cloud Controller DB","UAA DB","etc..."]_   
 
-  *Note*: Since AWS subnet must reside entirely within each AZ, in order to forward traffic from ELB to all the gorouters across multi AZs, ELB has to sits on all three public subnets matching ERT AZs.
+  **Note**: Since AWS subnet must reside entirely within each AZ, in order to forward traffic from ELB to all the gorouters across multi AZs, ELB has to sits on all three public subnets matching ERT AZs.
 
 
 - **Routes**
@@ -75,23 +75,21 @@ Best practice PCF on AWS deployments requires 2 "Service Accounts"
   Route Table Association: [C0 AWS Pipeline Terraform route table association](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/route_table_associations.tf)
 
   * PublicSubnetRouteTable
-    This routing table enable the ingress/egress routes from/to internet through internet gateway for OpsManager, NAT Gateway
+    This routing table enables the ingress/egress routes from/to internet through internet gateway for OpsManager, NAT Gateway
   * PrivateSubnetRouteTable
-    This routing table enable the egress routing to the internet through the NAT Gateway for Bosh Director, ERT
+    This routing table enables the egress routing to the internet through the NAT Gateway for Bosh Director, ERT
 
-  *Note*: If an EC2 instance sits on a subnet with an Internet gateway attached as well as a public IP, it is accessible from the internet through the public IP. E.g. OpsManager
+  **Note**: If an EC2 instance sits on a subnet with an Internet gateway attached as well as a public IP, it is accessible from the internet through the public IP. E.g. OpsManager. ERT needs internet access due to the access needs to blobstore as S3 bucket.
 
 
 
 ##### Security Groups
 
-Review Pipeline Security Group here:[C0 AWS Pipeline Terraform Security Group Rules](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/security_group.tf)
-
-*Needs to discuss the pipeline implementation*
+Review Pipeline Security Group here: [C0 AWS Pipeline Terraform Security Group Rules](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/security_group.tf)
 
 By default the Egress rules on all the security groups are wide open (ALL Protocol/To 0.0.0.0/0)
 
-This table describes the security groups *ingress* rules:
+This table describes the security groups **ingress** rules:
 
 |Security Group| Port | From CIDR | Protocol |Description |
 |-----------------------------:|:-------------------------|:-------------------------|:-------------------------|:-------------------------|
@@ -99,12 +97,12 @@ This table describes the security groups *ingress* rules:
 ||443|0.0.0.0/0|TCP|Ops Manager https Access|
 |VmsSG|ALL|VPC_CIDR|ALL|Open up connections among bosh deployed VMs|
 |MysqlSG|3306|VPC_CIDR|TCP|Enable network access to RDS|
-|ElbSG|80|0.0.0.0/0|TCP|http to elastic runtime|
-||443|0.0.0.0/0|TCP|https to elastic runtime|
+|ElbSG|80|0.0.0.0/0|TCP|Http to elastic runtime|
+||443|0.0.0.0/0|TCP|Https to elastic runtime|
 ||4443|0.0.0.0/0|TCP|Web socket connection to log aggregator endpoint|
-|SshElbSG|2222|0.0.0.0/0|TCP|ssh connection to containers|
+|SshElbSG|2222|0.0.0.0/0|TCP|SSH connection to containers|
 
-*Note*: The extra port of 4443 with ELB is due to the limitation that ELB does not support websocket on HTTP/HTTPS (layer 7).
+**Note**: The extra port of 4443 with ELB is due to the limitation that ELB does not support websocket on HTTP/HTTPS (layer 7).
 
 ##### Load Balancing
 
