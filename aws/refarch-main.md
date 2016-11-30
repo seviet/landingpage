@@ -48,16 +48,18 @@ Best practice PCF on AWS deployments requires 2 "Service Accounts"
 
 ##### Networks
 
-Review Pipeline Network objects here: [C0 AWS Pipeline Terraform Network Objects](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/vpc.tf#L25)
+- **Pipeline Review**:
 
-Each AWS subnet must reside entirely within one AZ. As a result a multi-AZ deployment topologies require corresponding multi-subnets
+*Note*: Each AWS subnet must reside entirely within one AZ. As a result a multi-AZ deployment topologies require corresponding multi-subnets
 
 - **Subnets**
+
+  AWS Subnets: [C0 AWS Pipeline Terraform subnets](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/subnets.tf)
 
   1. 1 *"Infrastructure"* subnet <->  This network will host:
     - _["Bosh Director"]_
 	2. 3 *"public"* subnets <->  These networks will host:
-		- _["OpsManager", "Elastic Load Balancers", "NAT Gateway"]_
+		- _["OpsManager", "Elastic Load Balancers", "NAT Instances"]_
 	3. 3 *"ert"* subnets <-> These networks will host the core instances of cloud foundry:
 	   - _["GoRouters","Diego Cells","Cloud Controllers", "etc..."]_
 	4. 3 *"services"* subnets <->  These networks ,as well as additional service networks, will host PCF managed service tiles:
@@ -70,7 +72,11 @@ Each AWS subnet must reside entirely within one AZ. As a result a multi-AZ deplo
 
 - **Routes**
 
-	Routes are created by AWS terraform pipeline that associates to each subnet:
+	Routes are created by AWS terraform pipeline that associate to each subnet:
+
+  Route Tables: [C0 AWS Pipeline Terraform route tables](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/route_tables.tf)
+
+  Route Table Association: [C0 AWS Pipeline Terraform route table association](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/route_table_associations.tf)
 
   * PublicSubnetRouteTable
     This routing table enable the ingress/egress routes from/to internet through internet gateway for OpsManager, NAT Gateway
@@ -106,12 +112,14 @@ This table describes the security groups *ingress* rules:
 
 ##### Load Balancing
 
+Review Pipeline Security Group here:[C0 AWS Pipeline Terraform Load Balancers](https://github.com/c0-ops/aws-concourse/blob/master/terraform/c0-aws-base/load_balancers.tf)
+
 PCF on AWS requires Elastic Load Balancer (ELB). It can be configured with multiple listeners to forward http/https/tcp traffics. We recommend to configure two ELBs:
 
 1. Forward the traffic to gorouter (PcfElb)
 2. Forward the traffic to diego brain ssh proxy (PcfSshElb)
 
-This table describes required listeners:
+This table describes the required listeners:
 
 |ELB|Instance/Port | LB Port|Protocol|Description |
 |-----------------------------:|:-------------------------|:-------------------------|:-------------------------|:-------------------------|
@@ -126,10 +134,4 @@ Each ELB binds with a health check to check the health of the back end instances
 * PcfSshElb checks the health on diego-brain port 2222 with TCP protocol
 
 
-##Pivotal Customer0 PCF on AWS Deployment Pipeline
-
-*Future Work*
-
-##PCF on GCP Helpful Links
-
-*Future Work*
+##[Pivotal Customer0 PCF on AWS Deployment Pipeline](https://github.com/c0-ops/aws-concourse/tree/master/ci)
