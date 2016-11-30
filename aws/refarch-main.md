@@ -18,15 +18,11 @@
 
 PCF on AWS Reference Architecture Overview (*c0-aws-base*):![c0-aws-base v1.0.1](../static/aws/images/PCF-AWS-RefArch-Overview/overview-arch.png)
 
-- [Pipeline Repo Link](https://github.com/c0-ops/aws-concourse) : Customer0 Concourse Pipelines
-- [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/c0-aws-deploy-ert-base) : See the Running Customer0 Concourse Pipelines
-
-
 ### __PCF on AWS requires the following AWS Components__:
 
 ##### VPC/Region/AZ/Subnet
 
-A Cloud Foundry Deployment will exist within a single VPC.  It will be located in a single AWS region and should distribute Cloud Foundry Jobs/Instances across 3 AWS Availability Zone to ensure a high degree of availability.
+A Cloud Foundry Deployment will exist within a single VPC.  It will be located in a single AWS region and should distribute Cloud Foundry Jobs/Instances across 3 AWS Availability Zones to ensure a high degree of availability.
 
 ##### EC2 Instance Quota
 
@@ -50,7 +46,7 @@ Best practice PCF on AWS deployments requires 2 "Service Accounts"
 
 - **Pipeline Review**:
 
-*Note*: Each AWS subnet must reside entirely within one AZ. As a result a multi-AZ deployment topologies require corresponding multi-subnets
+*Note*: Each AWS subnet must reside entirely within one AZ. As a result, a multi-AZ deployment topologies require corresponding multi-subnets
 
 - **Subnets**
 
@@ -58,6 +54,7 @@ Best practice PCF on AWS deployments requires 2 "Service Accounts"
 
   1. 1 *"Infrastructure"* subnet <->  This network will host:
     - _["Bosh Director"]_
+
 	2. 3 *"public"* subnets <->  These networks will host:
 		- _["OpsManager", "Elastic Load Balancers", "NAT Instances"]_
 	3. 3 *"ert"* subnets <-> These networks will host the core instances of cloud foundry:
