@@ -18,11 +18,10 @@ Validation Key Info (STATUS=Draft WIP)
   - [Pipeline Repo Link](https://github.com/c0-ops/azure-concourse) : Customer0 Concourse Pipelines
   - [Pipeline ERT Repo Link](https://github.com/c0-ops/ert-concourse) : Customer0 Concourse Pipelines
   - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/azure-base) : See the Running Customer0 Concourse Pipelines
-  
+
 This model shows a single PCF deployment in a single Azure Resource Group. HA deployments can be achieved by creating and same topology in an additional Resource Group and globally load balancing across them (GSLB).
 
-The reference approach is to create a single Resource Group, populate it with the required Azure constructs and then deploy PCF with Pivotal Operations Manager.  Core networking is created via an Azure virtual network with three 'children' subnets.
-These 4 subnets to be used in a manner similar to other Customer[0] architectures are:
+The reference approach is to create a single Resource Group, populate it with the required Azure constructs and then deploy PCF with Pivotal Operations Manager.  Core networking is created via an Azure virtual network with the following subnets:
   - Infrastructure
   - ERT (_Elastic Runtime_)
   - Service tiles
@@ -30,9 +29,9 @@ These 4 subnets to be used in a manner similar to other Customer[0] architecture
 
 ### IaaS Architecture
 
-In Azure, you will need some architectural constructs to deploy products in:
+In Azure, you will need some architectural constructs to deploy PCF:
 
-  - (1) Service Principal account in a Azure Active Directory (ADD) application for BOSH to use to deploy PCF with.  Documentation for creating the Service Principal can be found  [here](http://docs-pcf-review.cfapps.io/pivotalcf/1-8/customizing/azure-prepare-env.html)
+  - (1) Service Principal Account in a Azure Active Directory (ADD) application for BOSH to use to deploy PCF with.  Documentation for creating the Service Principal can be found  [here](http://docs.pivotal.io/pivotalcf/1-8/customizing/azure-prepare-env.html)
   - (1) Resource Group per PCF installation.
   - (\*) Availability Sets created by BOSH for each deployment job type
   - (1) Virtual Network (vnet) with a large range of address space that will be sub-divided
@@ -41,7 +40,9 @@ In Azure, you will need some architectural constructs to deploy products in:
       - (1) ERT 10.xxx.yyy.0/22
       - (1) Services-# 10.xxx.yyy.0/22
       - (1) Dynamic Service-# 10.xxx.yyy.0/22
-    - Note that a subnet is a logical component bound to a single Virtual Network and must exist in the the same Resource Group
+
+     **Note that a subnet is a logical component bound to a single Virtual Network and must exist in the the same Resource Group**
+
   - (1) Network Security Group (NSG) - to meet security requirements, firewall rules that apply to network interfaces (_Ops Manager for Azure currently limits to 1 security group_)
   - (4) Azure Load Balancers (ALBs)
     - (1) Public app access for API and Apps
@@ -60,7 +61,7 @@ In Azure, you will need some architectural constructs to deploy products in:
     - Optional (1) HTTPS Ops Manager
     - Optional (1) SSH Proxy to Diego Brains
 
-*NOTE: Public IP's are required iff only if not deploying with a VPN or Express Route Solution*
+**NOTE: Public IP's are required iff not deploying with a VPN or Express Route Solution**
 
 ### Network Topology
 _This section is currently in Progress_
@@ -68,7 +69,7 @@ _This section is currently in Progress_
 ![](../static/azure/images/PCF-Azure-RefArch-Customer0/net-topology-base.png)
 
   - NSGs
-    - Documentaion for creating NSGs can found [here](http://docs-pcf-review.cfapps.io/pivotalcf/1-8/customizing/azure-om-deploy.html)
+    - Documentaion for creating NSGs can found [here](http://docs.pivotal.io/pivotalcf/1-8/customizing/azure-om-deploy.html)
   - Application Security Groups
     - _Doc in Progress_
   - Azure Load Balancer Topology
@@ -96,18 +97,3 @@ A practical jump box inside your Azure deployment can be very useful. A Linux VM
   8. CF CLI
 
 Customer[0] curates a Slack channel for the Azure community at Pivotal. Visit http://pivotal.slack.com/customer0-azure for join.
-
-#Pivotal Customer0 Deployment Pipeline
-
-Describe what Customer0 Uses the pipeline for (Solution Validation)
-[Insert Link to pipeline repo]
-
-
-- Document How to use the pipeline in a POC scenario
-- Document How to ref the pipeline for manual deployment steps
-- Document What Customer0 Validates * (Future link to validation repos)
-
-
-```
-Links to Relevant Code
-```
