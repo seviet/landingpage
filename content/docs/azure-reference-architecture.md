@@ -24,7 +24,7 @@ Validation Key Info (Date last Updated)
 
 This model shows a single PCF deployment in a single Azure Resource Group. For HA deployment, create and deploy same on a second Resource Group.
 
-The reference approach is to create a Resource Group, populate it with a virtual network and draw three subnets from it. These three subnets will be used in a manner simliar to other Customer[0] architectures, where one is used for infrastructure, one for apps and one for service tiles.
+The reference approach is to create a Resource Group, populate it with a virtual network and draw three subnets from it. These three subnets will be used in a manner similar to other Customer[0] architectures, where one is used for infrastructure, one for apps and one for service tiles.
 
 ### IaaS Architecture
 

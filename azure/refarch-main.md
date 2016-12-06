@@ -57,7 +57,7 @@ _This section is currently in Progress_
   - Application Security Groups
     - _Doc in Pogress_
   - Azure Load Balancer Topology
-    - _Doc in Pogress_
+    - HAProxy Job is not recommended for a production deployment, instead use a highly-available azure-provided load balancing solution. For more information look [here](http://docs.pivotal.io/pivotalcf/1-8/opsguide/ssl-term-haproxy.html)
   - IaaS Specific VPN Architecture (Express Route/Home Grown VPN)
     - _Doc in Pogress_
   - Azure API Manager * (Optional)
