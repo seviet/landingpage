@@ -2,7 +2,7 @@
 
 __Summary__: Customer0 Reference Architectures are utilized by Pivotal's Customer0 group to simulate a base deployment of our products that is common to as many customer use cases as possible. These architectures are then automated via concourse pipelines and 'validated' thru various Customer0 validation scenarios to simulate common customer use cases.
 
-This PCF on Azure reference architecture is published as is with no warranty or support expressed or implied.
+This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied.
 
 Validation Key Info (STATUS=Draft WIP)
 
@@ -43,8 +43,8 @@ In Azure, you will need some architectural constructs to deploy products in:
   - (1) Jump Box on the Infra network to provide CLI tools
   - (1 - 4) Public IPs
     - (1) VIP for ALB for CF domains (sys. and apps.)
+    - (1) SSH into jump box
     - Optional (1) VIP for ALB to TCP Routers
-    - Optional (1) SSH into jump box
     - Optional (1) HTTPS Ops Manager
 
 ### Network Topology
@@ -67,16 +67,15 @@ _This section is currently in Progress_
 
 ### Caveats and Concerns
 
-Azure Storage Accounts have an IOPs limit (20k, per) which generally relates to a VM limit of 20 VMs per (safely). Consumers aren't charged by the Storage Account but rather by consumption. Size your deployments accordingly.
+Azure Storage Accounts have an IOPs limit (20k, per) which generally relates to a VM limit of 20 VMs per (safely). Consumers aren't charged by the Standard Storage Account but rather by consumption. Size your deployments accordingly.
 
 A practical jump box inside your Azure deployment can be very useful. A Linux VM with a number of useful CLIs pre-installed is recommended:
 
-  1. Azure CLI
+  1. Azure CLI (node.js dependent)
   2. BOSH CLI
-  3. Pivotal enaml & omg CLI
+  3. Pivotal Customer[0] enaml & omg CLI
   4. traceroute
-  5. netsec
-  6. getmap
+  5. nmap
 
 Customer[0] curates a Slack channel for the Azure community at Pivotal. Visit http://pivotal.slack.com/customer0-azure for join.
 
