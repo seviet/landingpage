@@ -1,6 +1,6 @@
-#Pivotal Customer0 Azure Reference Architecture
+#Pivotal Customer[0] Azure Reference Architecture
 
-__Summary__: Customer0 Reference Architectures are utilized by Pivotal's Customer0 group to simulate a base deployment of our products that is common to as many customer use cases as possible. These architectures are then automated via concourse pipelines and 'validated' thru various Customer0 validation scenarios to simulate common customer use cases.
+__Summary__: Customer[0] Reference Architectures are utilized by Pivotal's Customer[0] group to simulate a base deployment of our products that is common to as many customer use cases as possible. These architectures are then automated via concourse pipelines and 'validated' thru various Customer[0] validation scenarios to simulate common customer use cases.
 
 This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied.
 
@@ -11,13 +11,13 @@ Validation Key Info (STATUS=Draft WIP)
 | PCF Ops Manager               | 1.8.latest |
 | Elastic Runtime               | 1.8.latest                |
 
-### Pivotal Customer0 Reference Architecture Overview
+### Pivotal Customer[0] Reference Architecture Overview
 
   ![](../static/azure/images/PCF-Azure-RefArch-Customer0/Overview.png)
 
-  - [Pipeline Repo Link](https://github.com/c0-ops/azure-concourse) : Customer0 Concourse Pipelines
-  - [Pipeline ERT Repo Link](https://github.com/c0-ops/ert-concourse) : Customer0 Concourse Pipelines
-  - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/azure-base) : See the Running Customer0 Concourse Pipelines
+  - [Pipeline Repo Link](https://github.com/c0-ops/azure-concourse) : Customer[0] Concourse Pipelines
+  - [Pipeline ERT Repo Link](https://github.com/c0-ops/ert-concourse) : Customer[0] Concourse Pipelines
+  - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/azure-base) : See the Running Customer[0] Concourse Pipelines
 
 This model shows a single PCF deployment in a single Azure Resource Group. HA deployments can be achieved by creating and same topology in an additional Resource Group and globally load balancing across them (GSLB).
 
