@@ -3,15 +3,6 @@
  * Code licensed under the Apache License v2.0.
  * For details, see http://www.apache.org/licenses/LICENSE-2.0.
  */
-@import url(//db.onlinewebfonts.com/c/effd74cbf0d7ec814ef5b5c8b44e0988?family=VeneerW01-Two);
-@font-face {font-family: "VeneerW01-Two";
-    src: url("//db.onlinewebfonts.com/t/effd74cbf0d7ec814ef5b5c8b44e0988.eot");
-    src: url("//db.onlinewebfonts.com/t/effd74cbf0d7ec814ef5b5c8b44e0988.eot?#iefix") format("embedded-opentype"),
-    url("//db.onlinewebfonts.com/t/effd74cbf0d7ec814ef5b5c8b44e0988.woff2") format("woff2"),
-    url("//db.onlinewebfonts.com/t/effd74cbf0d7ec814ef5b5c8b44e0988.woff") format("woff"),
-    url("//db.onlinewebfonts.com/t/effd74cbf0d7ec814ef5b5c8b44e0988.ttf") format("truetype"),
-    url("//db.onlinewebfonts.com/t/effd74cbf0d7ec814ef5b5c8b44e0988.svg#VeneerW01-Two") format("svg");
-}
 body,
 html {
     width: 100%;
