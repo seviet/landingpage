@@ -113,10 +113,28 @@ It is recommended that all datastores to be used by PCF be mapped to all the hos
 
 For some scenarios, deploying PCF across combined resources located in more than one site is desirable to avoid total loss of site. There are a number of approaches architects may take to solve this problem, each with it's own caveats.
 
-TL;DR PCF Multi-Datacenter is a plausable approach that's flawed in one way or another depending on the architecture.
+TL;DR PCF Multi-Datacenter is a plausible approach that's flawed in one way or another depending on the architecture.
 
 *__Multi-Datacenter vSphere With Stretched Clusters__*
 
+In this approach, the architect is treating two sites as the same logical capacity and is building Clusters from components from both sites at the same time. Given four hosts, two might come from "East" and two might come from "West". In vSphere, these appear to form a four host Cluster. Networking is applied such that all hosts see the same networks thru stretched layer 2 application or perhaps a SDN solution such as NSX is being used to tunnel L2 over L3.
 
+In terms of PCF, the Cluster is an AZ and BOSH has no sense of some of that capacity coming from different places. Thus, these hosts must be able to operate such that there's no practical difference between the networks and storage they attach to, in terms of latency and connectivity.
+
+To honor the (above) gold standard, the approach should be three Clusters in use, but drawing from two sites, yielding a 4x3x3 type of deployment.
+
+- Four hosts per cluster (two from each site)
+- Three clusters for PCF as AZs
+- Three AZs mapped to Clusters in PCF
+
+Also, the single cluster model (above) can be used. This may be the more practical approach, since so many resources from both sites are already being applied to achieve HA.
+
+Replicated storage between sites is assumed. Datastores must be common to all hosts in a cluster for seamless operation, or else VMs will become trapped on the hosts mapped to specific datastores and won't vMotion away for maintenance or move for DRS.
+
+An interesting strategy for this model to ensure high availability for PCF is to keep a record of how many hosts are in a cluster and deploy enough copies of a PCF job in that AZ to ensure survivability in a site loss. This means placing large, odd numbers of jobs (such as consul) int he cluster so that at least two are left on either site in the event of a loss of site. In a four host cluster, this would call for five consul job VMs, so each site has at least two if not the third.
+
+Also, lots of smaller Diego Cells are recommended over a few, very large Diego Cells.
 
 *__Multi-Datacenter vSphere With Combined East/West Clusters__*
+
+In this approach, the architect is drawing capacity from the two sites independently and offering clusters of this capacity to PCF in distinct sets. This could yield vSphere Clusters always in pairs (East & West), so honoring PCF's need to deploy in odd numbers can become problematic.
