@@ -28,11 +28,49 @@ The reference approach is to create a three Clusters, populate them with the Res
   - Service tiles
   - Dynamic Service tiles
 
-This model is the gold standard for deploying one or more PCF installations for long term use and growth, while allowing for capacity growth at the vSphere level and also maximum installation security. The use of NSX is an optional, but highly recommended addition to the installation approach, as it adds several powerful elements:
+This model is the gold standard for deploying one or more PCF installations for long term use and growth, while allowing for capacity growth at the vSphere level and also maximum installation security.
+
+Depicted here a two PCF installations sharing the same vSphere capacity, yet segmented from each other with Resource Pools (the dotted line rectangles). This approach can easily scale to many PCF installations on the same capacity with the assurance that each is resource protected and separate from each other. Priority can be given to one or another installation if desired thru the use of "shares" applied at the Pool level ("High Shares" for the important installation, "Low Shares" for the sacrificial one(s)).
+
+*__Compute__*:
+
+Each Cluster is populated by three ESXi hosts, making nine hosts for each installation in a stripped manner. All installations draw form the same nine hosts in an aggregated fashion. Vertical growth is accomplished thru adding more pools and PCF installations, horizontal growth is via adding more hosts to the existing clusters (in sets of three, one per Cluster), from which all the installations can gain access to the added capacity.
+
+It is a VMware best practice to deploy hosts in Clusters of no less that three for vSphere HA use. vSphere DRS is a required function to enable Resource Pools and allow for automated vMotion.
+
+*__Storage__*:
+
+Storage is granted to the hosts in one of two common approaches:
+1. Datastores are granted to all hosts and a subset are offered to one installation at a time.
+2. Datastores are granted to a host cluster uniquiely and each installation uses multiple datastores to store VMs per cluster.
+
+Example (1): There are 6 datastores, "ds01" thru "ds06". All nine hosts are granted access to all six datastores. PCF installation #1 is provisioned to use "ds01", "ds02", and "ds03" and VMs land in all the pools starting in "ds01" until it's full, then "ds02" is used and so on.
+
+Example (2): There are 6 datastores, "ds01" thru "ds06". Cluster 1 hosts are granted "ds01" and "ds02", Cluster 2 hosts are granted "ds03" and "ds04", and so on. PCF installation #1 is provisioned to use "ds01", "ds03" and "ds05" and all VMs land on the datastore correct for the cluster they are provisioned to. This is how vSphere VSAN works.
+
+*__Networking__*
+
+The above model employs VMware NSX to provide unique benefits to the PCF installation on vSphere. Refer to subsequent chapters in this document for treatments of this approach where NSX is not used.
+
+The use of NSX is an optional, but highly recommended addition to the installation approach, as it adds several powerful elements:
 
   1. Firewall capability per-installation thru the built-in Edge firewall
   2. High capacity, resilient load balancing per-installation thru the NSX Load Balancer
   3. Installation obfuscation thru the use of non-routed RFC networks behind the NSX Edge and the use of SNAT/DNAT connections to expose only the endpoints of Cloud Foundry that need exposure.
   4. High repeatability of installations thru the repeat use of all network and addressing conventions on the right hand side of the diagram (the Tenant Side)
 
-Depicted here a two PCF installations sharing the same vSphere capacity, yet segmented from each other with Resource Pools (the dotted line rectangles). This approach can easily scale to many PCF installations on the same capacity with the assurance that each is resource protected and separate from each other. Priority can be given to one or another installation if desired thru the use of "shares" applied at the Pool level ("High Shares" for the important installation, "Low Shares" for the sacrificial one(s)).
+NSX DLR (Distributed Logical Router) is not used in this approach as it provides only routing services, not load balancing and firewalling.
+
+NSX DLF (Distributed Logical Firewall) isn't used as we gain that capability right where it's needed most, in front of the PCF installation, not on the network(s) the installation uses. This also applies to "micro-segmentation", as there's no need to place firewall rules horizontally on a network used by PCF when the above model is deployed with the NSX Edge.
+
+NSX DLB (Distributed Load Balancing) isn't used as it's not considered production quality and is not intended for use with L7 balancing (which is PCF's primary need) or for North/South flows.
+
+*__Networking Design__*
+
+Each PCF installation consumes three (or more) networks from the NSX Edge, aligned to specific jobs:
+
+- "Infrastruture" A network with a small CIDR range for use with those resources focused on interacting with the IaaS layer and back-office systems. This is an "inward-facing" network, where Ops Manager, BOSH ad other utility VMs such as jump box VM would connect.
+- "Deployment" A network with a large CIDR range exclusively used by the ERT tile to deploy app containers and related support components. Also known as "the apps wire".
+- "Services" At least one, if not more, with a large CIDR range for use with other installations hosted and managed by BOSH via Ops Manager. A simple approach is to use this network for all PCF tiles except ERT. A more involved approach would be to deploy multiple "Services-#" networks, one for each tile or one for each type of tile, say databases vs message busses and so on.
+
+All of these networks are considered "inside" or "tenant-side" networks, and use non-routable RFC network space to make provisioning repeatable. The NSX Edge translates between the tenant and service provider side networks using SNAT and DNAT.
