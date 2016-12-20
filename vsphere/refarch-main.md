@@ -6,7 +6,7 @@
 
 *__Non-Goals__*:
 
-- This PCF on AWS reference architecture is published as is with no warranty or support expressed or implied!
+- This PCF on vSphere reference architecture is published as is with no warranty or support expressed or implied!
 - This document is NOT intended to replace the basic installation documentation located @ [http://docs.pivotal.io/](http://docs.pivotal.io/pivotalcf/1-8/customizing/vsphere.html), but rather to demonstrate how those instructions should be related to a typical/recommended Pivotal Cloud Foundry Installation.
 
 | PCF Products Validated        | Version                   |
@@ -22,7 +22,7 @@
 - [Pipeline ERT Repo Link](https://github.com/c0-ops/ert-concourse) : Customer[0] Concourse Pipelines
 - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/vsphere-base) : See the Running Customer[0] Concourse Pipelines
 
-The reference approach is to create a three Clusters, populate them with the Resource Pools and then deploy PCF with Pivotal Operations Manager into those pools, one pool per Cluster. Core networking is created via an NSX Edge with the following subnets:
+The reference approach is to create three Clusters, populate them with the Resource Pools and then deploy PCF with Pivotal Operations Manager into those pools, one pool per Cluster. Core networking is created via an NSX Edge with the following subnets:
   - Infrastructure
   - ERT (_Elastic Runtime_)
   - Service tiles
@@ -48,6 +48,12 @@ Example (1): There are 6 datastores, "ds01" thru "ds06". All nine hosts are gran
 
 Example (2): There are 6 datastores, "ds01" thru "ds06". Cluster 1 hosts are granted "ds01" and "ds02", Cluster 2 hosts are granted "ds03" and "ds04", and so on. PCF installation #1 is provisioned to use "ds01", "ds03" and "ds05" and all VMs land on the datastore correct for the cluster they are provisioned to. This is how vSphere VSAN works.
 
+Datastore sizing is recommended to be 8 TB per, two per PCF installation, or smaller volumes that aggregate up to this quantity. Small installations that won't have many tiles added can use less, 4 TB times two per PCF is reasonable.
+
+    _If a vSphere datasotre is part of a vSphere Storage Cluster using sDRS (storage DRS), the sDRS feature must be disabled on the datastores used by PCF as s-vMotion activity will cause BOSH to malfunction as a result of renaming managed independent disks._
+
+Recommended types of storage are block-based (fiber channel or iSCSI) and file-based (NFS) over high speed carriers such as 6G FC or 10GigE.
+
 *__Networking__*
 
 The above model employs VMware NSX to provide unique benefits to the PCF installation on vSphere. Refer to subsequent chapters in this document for treatments of this approach where NSX is not used.
@@ -58,6 +64,9 @@ The use of NSX is an optional, but highly recommended addition to the installati
   2. High capacity, resilient load balancing per-installation thru the NSX Load Balancer
   3. Installation obfuscation thru the use of non-routed RFC networks behind the NSX Edge and the use of SNAT/DNAT connections to expose only the endpoints of Cloud Foundry that need exposure.
   4. High repeatability of installations thru the repeat use of all network and addressing conventions on the right hand side of the diagram (the Tenant Side)
+  5. Automatic rule and ACL sharing via NSX Manager Global Ruleset
+  6. Automatic HA pairing of NSX Edges, managed by NSX Manager
+  7. Support for PCF Go Router IP membership in the NSX Edge virtual load balancer pool by the BOSH CPI (not an Ops Manager feature)
 
 NSX DLR (Distributed Logical Router) is not used in this approach as it provides only routing services, not load balancing and firewalling.
 
@@ -69,13 +78,32 @@ NSX DLB (Distributed Load Balancing) isn't used as it's not considered productio
 
 Each PCF installation consumes three (or more) networks from the NSX Edge, aligned to specific jobs:
 
-- "Infrastruture" A network with a small CIDR range for use with those resources focused on interacting with the IaaS layer and back-office systems. This is an "inward-facing" network, where Ops Manager, BOSH ad other utility VMs such as jump box VM would connect.
-- "Deployment" A network with a large CIDR range exclusively used by the ERT tile to deploy app containers and related support components. Also known as "the apps wire".
-- "Services" At least one, if not more, with a large CIDR range for use with other installations hosted and managed by BOSH via Ops Manager. A simple approach is to use this network for all PCF tiles except ERT. A more involved approach would be to deploy multiple "Services-#" networks, one for each tile or one for each type of tile, say databases vs message busses and so on.
+- "Infrastruture": A network with a small CIDR range for use with those resources focused on interacting with the IaaS layer and back-office systems. This is an "inward-facing" network, where Ops Manager, BOSH ad other utility VMs such as jump box VM would connect.
+- "Deployment": A network with a large CIDR range exclusively used by the ERT tile to deploy app containers and related support components. Also known as "the apps wire".
+- "Services": At least one, if not more, with a large CIDR range for use with other installations hosted and managed by BOSH via Ops Manager. A simple approach is to use this network for all PCF tiles except ERT. A more involved approach would be to deploy multiple "Services-#" networks, one for each tile or one for each type of tile, say databases vs message busses and so on.
 
 All of these networks are considered "inside" or "tenant-side" networks, and use non-routable RFC network space to make provisioning repeatable. The NSX Edge translates between the tenant and service provider side networks using SNAT and DNAT.
 
+Each NSX Edge should be provisioned with at least four service provider side (routable) IPs:
 
+1. A static IP by which NSX Manager will manage the NSX Edge
+2. A static IP for use as egress SNAT (traffic from tenant side will exit the Edge on this IP)
+3. A static IP for DNATs to Ops Manager
+4. A static IP for the load balancer VIP that will balance to a pool of PCF Go Routers
+
+  _There are many more uses for IPs on the routed side of the Edge. Ten reserved, contiguous static IPs are recommended per NSX Edge for flexibility and future needs._
+
+On the tenant side, each interface on the Edge that is defines will act as the IP gateway for the network used on that port group. The following are recommend for use on these networks:
+- "Infra" network: 192.168.10.0/26, Gateway at .1
+- "Deployment" network: 192.168.20.0/22, Gateway at .1
+- "Services" network: 192.168.24.0/22, Gateway at .1
+- _"Services-B" network: 192.168.28.0/22, and so on..._
+
+  ![Network Example](../static/vsphere/images/PCF RefArch vSphere Exploded Edge.png)
+
+  vSphere DVS (distributed virtual switching) is recommended for all Clusters used by PCF. NSX will create a DPG (distributed port group) for each interface provisioned on the NSX Edge.
+
+  ![Port Groups](//static/vsphere/images/PCF RefArch vSphere Port Groups.png)
 
 ### Reference Approach Without VMware NSX
 
@@ -119,6 +147,8 @@ TL;DR PCF Multi-Datacenter is a plausible approach that's flawed in one way or a
 
 In this approach, the architect is treating two sites as the same logical capacity and is building Clusters from components from both sites at the same time. Given four hosts, two might come from "East" and two might come from "West". In vSphere, these appear to form a four host Cluster. Networking is applied such that all hosts see the same networks thru stretched layer 2 application or perhaps a SDN solution such as NSX is being used to tunnel L2 over L3.
 
+  ![PCF Single Cluster Model](../static/vsphere/images/PCF RefArch vSphere Multi-DC.png)
+
 In terms of PCF, the Cluster is an AZ and BOSH has no sense of some of that capacity coming from different places. Thus, these hosts must be able to operate such that there's no practical difference between the networks and storage they attach to, in terms of latency and connectivity.
 
 To honor the (above) gold standard, the approach should be three Clusters in use, but drawing from two sites, yielding a 4x3x3 type of deployment.
@@ -131,7 +161,7 @@ Also, the single cluster model (above) can be used. This may be the more practic
 
 Replicated storage between sites is assumed. Datastores must be common to all hosts in a cluster for seamless operation, or else VMs will become trapped on the hosts mapped to specific datastores and won't vMotion away for maintenance or move for DRS.
 
-An interesting strategy for this model to ensure high availability for PCF is to keep a record of how many hosts are in a cluster and deploy enough copies of a PCF job in that AZ to ensure survivability in a site loss. This means placing large, odd numbers of jobs (such as consul) int he cluster so that at least two are left on either site in the event of a loss of site. In a four host cluster, this would call for five consul job VMs, so each site has at least two if not the third.
+An interesting strategy for this model to ensure high availability for PCF is to keep a record of how many hosts are in a cluster and deploy enough copies of a PCF job in that AZ to ensure survivability in a site loss. This means placing large, odd numbers of jobs (such as consul) in the cluster so that at least two are left on either site in the event of a loss of site. In a four host cluster, this would call for five consul job VMs, so each site has at least two if not the third. DRS anti-magatism rules can be used here (set at the IaaS level) to force like VMs apart for best effect.
 
 Also, lots of smaller Diego Cells are recommended over a few, very large Diego Cells.
 

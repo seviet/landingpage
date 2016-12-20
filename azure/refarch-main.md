@@ -61,7 +61,7 @@ In Azure, you will need some architectural constructs to deploy PCF:
     - Optional (1) HTTPS Ops Manager
     - Optional (1) SSH Proxy to Diego Brains
 
-**NOTE: Public IP's are required iff not deploying with a VPN or Express Route Solution**
+**NOTE: Public IPs are required if not deploying with a VPN or Express Route Solution**
 
 ### Network Topology
 _This section is currently in Progress_
