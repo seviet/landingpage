@@ -2,7 +2,7 @@
 
 __Summary__: Customer[0] Reference Architectures are utilized by Pivotal's Customer[0] group to simulate a base deployment of our products that is common to as many customer use cases as possible. These architectures are then automated via concourse pipelines and 'validated' thru various Customer[0] validation scenarios to simulate common customer use cases.
 
-This PCF on GCP reference architecture is published as is with no warranty or support expressed or implied.
+This PCF on Azure reference architecture is published as is with no warranty or support expressed or implied.
 
 Validation Key Info (STATUS=Draft WIP)
 
@@ -61,7 +61,7 @@ In Azure, you will need some architectural constructs to deploy PCF:
     - Optional (1) HTTPS Ops Manager
     - Optional (1) SSH Proxy to Diego Brains
 
-**NOTE: Public IP's are required iff not deploying with a VPN or Express Route Solution**
+**NOTE: Public IP's are required if not deploying with a VPN or Express Route Solution**
 
 ### Network Topology
 _This section is currently in Progress_
