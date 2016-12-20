@@ -74,3 +74,49 @@ Each PCF installation consumes three (or more) networks from the NSX Edge, align
 - "Services" At least one, if not more, with a large CIDR range for use with other installations hosted and managed by BOSH via Ops Manager. A simple approach is to use this network for all PCF tiles except ERT. A more involved approach would be to deploy multiple "Services-#" networks, one for each tile or one for each type of tile, say databases vs message busses and so on.
 
 All of these networks are considered "inside" or "tenant-side" networks, and use non-routable RFC network space to make provisioning repeatable. The NSX Edge translates between the tenant and service provider side networks using SNAT and DNAT.
+
+
+
+### Reference Approach Without VMware NSX
+
+In the absence of VMware NSX SDN technology, the PCF installation on vSphere follows the standard approach discussed in the documentation. For the purposes of this reference architecture, it would be easist to explore what changes and/or is lost in this approach.
+
+*__Networking Features__*
+
+- Load balancing would have to be hosted by some external service, such as a hardware appliance or VM from a 3rd party. This also applies to SSL termination.
+- Pre-installation firewalling would be lost, as the traditional approach to firewalling inside systems is per zone or per network, not per virtual appliance installation that spans multiple networks.
+- The need to SNAT/DNAT non-routable RFC networks used with PCF would go away as it's unlikely they would be used at all without the NSX Edge there to provide the boundary. In it's place a single, or possible multiple VLANs from the routable network space already deployed in the datacenter would be used.
+
+*__Networking Design__*
+
+The more traditional approach without SDN would be to deploy a single VLAN for use with all of PCF, or possibly a pair of VLANs (one for infrastructure and one for PCF).
+
+  ![PCF without SDN Model](image here)
+
+### Reference Approach Without Three Clusters
+
+Some desire to start with PCF aligned to less resource than the standard (above) calls for, so the starting point for that is a single Cluster. If you are working with at least three ESXi hosts, the recommended guidance is still to setup in three Clusters, even with one host in each (such that the HA comes fro the PasS, not the IaaS), but for less than that, place all available hosts into a single Cluster with DRS and HA enabled.
+
+  ![PCF Single Cluster Model](image here)
+
+A two Cluster configuration has little value compared to a single or triple cluster configuration. While a pair of Clusters has symmetry in vSphere, PCF always seeks to deploy resources in odd numbers, so a two Cluster configuration forces the operator into a two AZ alignment for odd (three) elements, which is far from ideal.
+
+*__Network Design__*
+
+It is recommended to use the networking approach detailed in either the with-NSX or without-NSX sections for this design, as the compute arrangement has little impact on how PCF in networked for production use.
+
+*__Storage__*
+
+It is recommended that all datastores to be used by PCF be mapped to all the hosts in the single cluster.
+
+### Reference Approach Utilizing Multi-Datacenter
+
+For some scenarios, deploying PCF across combined resources located in more than one site is desirable to avoid total loss of site. There are a number of approaches architects may take to solve this problem, each with it's own caveats.
+
+TL;DR PCF Multi-Datacenter is a plausable approach that's flawed in one way or another depending on the architecture.
+
+*__Multi-Datacenter vSphere With Stretched Clusters__*
+
+
+
+*__Multi-Datacenter vSphere With Combined East/West Clusters__*
