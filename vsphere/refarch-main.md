@@ -119,7 +119,14 @@ In the absence of VMware NSX SDN technology, the PCF installation on vSphere fol
 
 The more traditional approach without SDN would be to deploy a single VLAN for use with all of PCF, or possibly a pair of VLANs (one for infrastructure and one for PCF).
 
-  ![PCF without SDN Model](image here)
+  ![PCF without SDN Model](../static/vsphere/images/PCF RefArch vSphere noNSX.png)
+
+In this example, the functions of firewall and load balancer have been moved outside the of vSphere space to generic devices assumed to be available in the datacenter. The PCF installation is now bound to two port groups provided by a DVS on ESXi, each one aligned to a key use case:
+
+  1. "Infra": PCF VMs used to communicate w/the IaaS layer
+  2. "PCF": the primary deployment network for all tiles including ERT
+
+Each one of these port groups typically is assigned a VLAN out of the datacenter's pool and a routable IP address segment. Routing functions are handled by switching layers outside of vSphere, such as TOR or EOR switch/router.
 
 ### Reference Approach Without Three Clusters
 
@@ -147,7 +154,7 @@ TL;DR PCF Multi-Datacenter is a plausible approach that's flawed in one way or a
 
 In this approach, the architect is treating two sites as the same logical capacity and is building Clusters from components from both sites at the same time. Given four hosts, two might come from "East" and two might come from "West". In vSphere, these appear to form a four host Cluster. Networking is applied such that all hosts see the same networks thru stretched layer 2 application or perhaps a SDN solution such as NSX is being used to tunnel L2 over L3.
 
-  ![PCF Single Cluster Model](../static/vsphere/images/PCF RefArch vSphere Multi-DC.png)
+  ![PCF Multi-DC Stretched](../static/vsphere/images/PCF RefArch vSphere Multi-DC.png)
 
 In terms of PCF, the Cluster is an AZ and BOSH has no sense of some of that capacity coming from different places. Thus, these hosts must be able to operate such that there's no practical difference between the networks and storage they attach to, in terms of latency and connectivity.
 
