@@ -50,7 +50,7 @@ Example (2): There are 6 datastores, "ds01" thru "ds06". Cluster 1 hosts are gra
 
 Datastore sizing is recommended to be 8 TB per, two per PCF installation, or smaller volumes that aggregate up to this quantity. Small installations that won't have many tiles added can use less, 4 TB times two per PCF is reasonable.
 
-    _If a vSphere datasotre is part of a vSphere Storage Cluster using sDRS (storage DRS), the sDRS feature must be disabled on the datastores used by PCF as s-vMotion activity will cause BOSH to malfunction as a result of renaming managed independent disks._
+    _If a vSphere datastore is part of a vSphere Storage Cluster using sDRS (storage DRS), the sDRS feature must be disabled on the datastores used by PCF as s-vMotion activity will cause BOSH to malfunction as a result of renaming managed independent disks._
 
 Recommended types of storage are block-based (fiber channel or iSCSI) and file-based (NFS) over high speed carriers such as 6G FC or 10GigE.
 
@@ -103,7 +103,7 @@ On the tenant side, each interface on the Edge that is defines will act as the I
 
   vSphere DVS (distributed virtual switching) is recommended for all Clusters used by PCF. NSX will create a DPG (distributed port group) for each interface provisioned on the NSX Edge.
 
-  ![Port Groups](//static/vsphere/images/PCF RefArch vSphere Port Groups.png)
+  ![Port Groups](../static/vsphere/images/PCF RefArch vSphere Port Groups.png)
 
 ### Reference Approach Without VMware NSX
 
@@ -161,7 +161,7 @@ Also, the single cluster model (above) can be used. This may be the more practic
 
 Replicated storage between sites is assumed. Datastores must be common to all hosts in a cluster for seamless operation, or else VMs will become trapped on the hosts mapped to specific datastores and won't vMotion away for maintenance or move for DRS.
 
-An interesting strategy for this model to ensure high availability for PCF is to keep a record of how many hosts are in a cluster and deploy enough copies of a PCF job in that AZ to ensure survivability in a site loss. This means placing large, odd numbers of jobs (such as consul) in the cluster so that at least two are left on either site in the event of a loss of site. In a four host cluster, this would call for five consul job VMs, so each site has at least two if not the third. DRS anti-magatism rules can be used here (set at the IaaS level) to force like VMs apart for best effect.
+An interesting strategy for this model to ensure high availability for PCF is to keep a record of how many hosts are in a cluster and deploy enough copies of a PCF job in that AZ to ensure survivability in a site loss. This means placing large, odd numbers of jobs (such as consul) in the cluster so that at least two are left on either site in the event of a loss of site. In a four host cluster, this would call for five consul job VMs, so each site has at least two if not the third. DRS anti-magnatism rules can be used here (set at the IaaS level) to force like VMs apart for best effect.
 
 Also, lots of smaller Diego Cells are recommended over a few, very large Diego Cells.
 
