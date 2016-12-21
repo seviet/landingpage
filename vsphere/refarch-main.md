@@ -132,7 +132,7 @@ Each one of these port groups typically is assigned a VLAN out of the datacenter
 
 Some desire to start with PCF aligned to less resource than the standard (above) calls for, so the starting point for that is a single Cluster. If you are working with at least three ESXi hosts, the recommended guidance is still to setup in three Clusters, even with one host in each (such that the HA comes fro the PasS, not the IaaS), but for less than that, place all available hosts into a single Cluster with DRS and HA enabled.
 
-  ![PCF Single Cluster Model](image here)
+  ![PCF Single Cluster Model](../static/vsphere/images/PCF RefArch vSphere oneCluster.png)
 
 A two Cluster configuration has little value compared to a single or triple cluster configuration. While a pair of Clusters has symmetry in vSphere, PCF always seeks to deploy resources in odd numbers, so a two Cluster configuration forces the operator into a two AZ alignment for odd (three) elements, which is far from ideal.
 
