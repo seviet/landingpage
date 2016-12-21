@@ -1,17 +1,17 @@
 #Pivotal Customer[0] _PCF on vSphere_ Reference Architecture
 
-*__Goal__*:  Customer[0] Reference Architectures are utilized by Pivotal's Customer[0] group to _simulate_ a base deployment of our products that is common to as many customer use cases as possible.  These architectures are then automated via concourse pipelines and _'validated'_ thru various Customer[0] validation scenarios to simulate typical customer use cases.
+*__Goal__*:  Customer[0] Reference Architectures are utilized by Pivotal's Customer[0] group to simulate a base deployment of our products that is common to as many customer use cases as possible.  These architectures are then automated via concourse pipelines and validated thru various Customer[0] validation scenarios to simulate typical customer use cases.
 
-######* Customer[0][Typical Customer] * = _A secured and internally hosted PCF Foundation, capable of hosting ~1500 Application Instances (AIs) with PCF managed Services: "Mysql, RabbitMQ, Pivotal Spring Cloud Services"_
+###### Customer[0] Typical Customer = _A secured and internally hosted PCF Foundation, capable of hosting ~1500 Application Instances (AIs) with PCF managed Services: "MySQL, RabbitMQ, Pivotal Spring Cloud Services"_
 
 *__Non-Goals__*:
 
 - This PCF on vSphere reference architecture is published as is with no warranty or support expressed or implied!
-- This document is NOT intended to replace the basic installation documentation located @ [http://docs.pivotal.io/](http://docs.pivotal.io/pivotalcf/1-8/customizing/vsphere.html), but rather to demonstrate how those instructions should be related to a typical/recommended Pivotal Cloud Foundry Installation.
+- This document is NOT intended to replace the basic installation documentation located @ [docs.pivotal.io](http://docs.pivotal.io/pivotalcf/1-8/customizing/vsphere.html), but rather to demonstrate how those instructions should be related to a recommended Pivotal Cloud Foundry Installation.
 
 | PCF Products Validated        | Version                   |
 | ----------------------------- |:-------------------------:|
-| PCF Ops Manager               | 1.8.latest |
+| PCF Ops Manager               | 1.8.latest                |
 | Elastic Runtime               | 1.8.latest                |
 
 ### Pivotal Customer[0] Reference Architecture Overview
@@ -25,16 +25,15 @@
 The reference approach is to create three Clusters, populate them with the Resource Pools and then deploy PCF with Pivotal Operations Manager into those pools, one pool per Cluster. Core networking is created via an NSX Edge with the following subnets:
   - Infrastructure
   - ERT (_Elastic Runtime_)
-  - Service tiles
-  - Dynamic Service tiles
+  - Service tiles (one or more)
 
 This model is the gold standard for deploying one or more PCF installations for long term use and growth, while allowing for capacity growth at the vSphere level and also maximum installation security.
 
-Depicted here a two PCF installations sharing the same vSphere capacity, yet segmented from each other with Resource Pools (the dotted line rectangles). This approach can easily scale to many PCF installations on the same capacity with the assurance that each is resource protected and separate from each other. Priority can be given to one or another installation if desired thru the use of "shares" applied at the Pool level ("High Shares" for the important installation, "Low Shares" for the sacrificial one(s)).
+Depicted here a two PCF installations sharing the same vSphere capacity, yet segmented from each other with Resource Pools (the dotted line rectangles). This approach can easily scale to many PCF installations on the same capacity with the assurance that each is resource protected and separate from each other. Priority can be given to one or another installation if desired thru the use of "shares" applied at the pool level ("High Shares" for the important installation, "Low Shares" for the sacrificial one(s)).
 
 *__Compute__*:
 
-Each Cluster is populated by three ESXi hosts, making nine hosts for each installation in a stripped manner. All installations draw form the same nine hosts in an aggregated fashion. Vertical growth is accomplished thru adding more pools and PCF installations, horizontal growth is via adding more hosts to the existing clusters (in sets of three, one per Cluster), from which all the installations can gain access to the added capacity.
+Each Cluster is populated by a minimum of three ESXi hosts, making nine hosts for each installation in a stripped manner. All installations draw form the same nine hosts in an aggregated fashion. Vertical growth is accomplished thru adding more pools and PCF installations, horizontal growth is via adding more hosts to the existing clusters (in sets of three, one per Cluster), from which all the installations can gain access to the added capacity.
 
 It is a VMware best practice to deploy hosts in Clusters of no less that three for vSphere HA use. vSphere DRS is a required function to enable Resource Pools and allow for automated vMotion.
 
@@ -50,15 +49,15 @@ Example (2): There are 6 datastores, "ds01" thru "ds06". Cluster 1 hosts are gra
 
 Datastore sizing is recommended to be 8 TB per, two per PCF installation, or smaller volumes that aggregate up to this quantity. Small installations that won't have many tiles added can use less, 4 TB times two per PCF is reasonable.
 
-    _If a vSphere datastore is part of a vSphere Storage Cluster using sDRS (storage DRS), the sDRS feature must be disabled on the datastores used by PCF as s-vMotion activity will cause BOSH to malfunction as a result of renaming managed independent disks._
+  _If a vSphere datastore is part of a vSphere Storage Cluster using sDRS (storage DRS), the sDRS feature must be disabled on the datastores used by PCF as s-vMotion activity will cause BOSH to malfunction as a result of renaming managed independent disks._
 
-Recommended types of storage are block-based (fiber channel or iSCSI) and file-based (NFS) over high speed carriers such as 6G FC or 10GigE.
+Recommended types of storage are block-based (fiber channel or iSCSI) and file-based (NFS) over high speed carriers such as 6G FC or 10GigE. Redundant storage is highly recommended for the "persistent" storage type used by PCF. DASD or JBOD can be used for the "ephemeral" storage type.
 
 *__Networking__*
 
-The above model employs VMware NSX to provide unique benefits to the PCF installation on vSphere. Refer to subsequent chapters in this document for treatments of this approach where NSX is not used.
+The above model employs VMware NSX SDN (software-defined networking) to provide unique benefits to the PCF installation on vSphere. Refer to subsequent chapters in this document for treatments of this approach where NSX is not used.
 
-The use of NSX is an optional, but highly recommended addition to the installation approach, as it adds several powerful elements:
+The use of NSX is an optional, but highly recommended addition to the installation approach, as it adds many powerful elements:
 
   1. Firewall capability per-installation thru the built-in Edge firewall
   2. High capacity, resilient load balancing per-installation thru the NSX Load Balancer
@@ -142,7 +141,7 @@ It is recommended to use the networking approach detailed in either the with-NSX
 
 *__Storage__*
 
-It is recommended that all datastores to be used by PCF be mapped to all the hosts in the single cluster.
+It is recommended that all datastores to be used by PCF be mapped to all the hosts in the single cluster. Otherwise, follow the guidance from (above).
 
 ### Reference Approach Utilizing Multi-Datacenter
 
@@ -168,10 +167,18 @@ Also, the single cluster model (above) can be used. This may be the more practic
 
 Replicated storage between sites is assumed. Datastores must be common to all hosts in a cluster for seamless operation, or else VMs will become trapped on the hosts mapped to specific datastores and won't vMotion away for maintenance or move for DRS.
 
-An interesting strategy for this model to ensure high availability for PCF is to keep a record of how many hosts are in a cluster and deploy enough copies of a PCF job in that AZ to ensure survivability in a site loss. This means placing large, odd numbers of jobs (such as consul) in the cluster so that at least two are left on either site in the event of a loss of site. In a four host cluster, this would call for five consul job VMs, so each site has at least two if not the third. DRS anti-magnatism rules can be used here (set at the IaaS level) to force like VMs apart for best effect.
+An interesting strategy for this model to ensure high availability for PCF is to keep a record of how many hosts are in a cluster and deploy enough copies of a PCF job in that AZ to ensure survivability in a site loss. This means placing large, odd numbers of jobs (such as consul) in the cluster so that at least two are left on either site in the event of a loss of site. In a four host cluster, this would call for five consul job VMs, so each site has at least two if not the third. DRS anti-affinity rules can be used here (set at the IaaS level) to force like VMs apart for best effect.
 
 Also, lots of smaller Diego Cells are recommended over a few, very large Diego Cells.
+
+Network traffic is a challenge in this scenario, as app traffic may enter at any point in either site's connection points, but can only leave at a designated gateway. Thus, it's possible to have apps servicing traffic coming from either East or West but only appearing to respond via West (as in the diagram) causing a "trombone effect" of traffic doubling across datacenter links. The architect should consider the impact of hosting apps that may land in East only to have the traffic flow out of West.
 
 *__Multi-Datacenter vSphere With Combined East/West Clusters__*
 
 In this approach, the architect is drawing capacity from the two sites independently and offering clusters of this capacity to PCF in distinct sets. This could yield vSphere Clusters always in pairs (East & West), so honoring PCF's need to deploy in odd numbers can become problematic.
+
+One strategy here would be to effectively double the standard approach at the beginning of this material, yielding six total clusters, three from each side. While this seems like a whole lot of gear to apply to PCF, you could argue that in a BC/DR type of scenario, doubling everything is exactly the point.
+
+Another strategy is to use the Single Cluster approach from above, where you have three resource pools in one cluster per site, yielding six AZs to PCF but only using one actual cluster of capacity from each site. This approach won't scale as readily but does have the benefit of drawing capacity from only one cluster, which is east to provision with only a few hosts.
+
+Storage replication in this case is less critical as the assumption is there are enough AZs from either side to survive a failure and vSphere HA isn't needed to recover the installation.
