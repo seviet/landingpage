@@ -126,7 +126,7 @@ Customer0 will 'validate' a limited number of variant scenarios from the Base te
 |c0-azure-base|Base Template, single resource group, DNS integrated with C0 Dyn|
 |c0-azure-poc|Base Template, with reduced number of cells and pipeline pause for manual DNS setup||
 |c0-azure-multi-res-group|Multi Resource Group deployment, DNS integrated with C0 Dyn||
-|c0-azure-multi-res-group-multi-lb|Multi Resource Group / Multi Load Balander deployment, No pipeline available||
+|c0-azure-multi-res-group-multi-lb|Multi Resource Group / Multi Load Balancer deployment, No pipeline available||
 
 ##### c0-azure-multi-res-group
 
