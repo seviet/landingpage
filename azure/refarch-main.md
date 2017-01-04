@@ -27,29 +27,29 @@ The 'base' reference approach is to create a single Resource Group, populate it 
   - Infrastructure
   - ERT (_Elastic Runtime_)
   - Service tiles
-  - Dynamic or On Demand Service tiles 
+  - Dynamic or On Demand Service tiles
 
 ### IaaS Architecture
 
 Core Azure architectural constructs required to deploy PCF:
 
   - (1) Service Principal Account bound to an Azure Active Directory (ADD) Application for BOSH to interact with the API.  
-  
+
     - Documentation for creating the Service Principal can be found  [here](http://docs.pivotal.io/pivotalcf/1-8/customizing/azure-prepare-env.html)
     - See the _**c0-azure-multi-res-group**_ Pipeline Variant for information on limiting the Service Principal account in a common customer scenario.
-  
+
   - (1 or 2) Resource Group(s) per PCF installation.
 
      - the _**c0-azure-base**_ Pipeline Variant utilizes a single Resource Group for all azure objects.  Customers wishing to control access to Azure networking objects may choose to architect a dedicated 'Network' Resource Group for Azure virtual nets and other key networking objects, and provision a dedicated 'PCF' Resource Group for bosh to deploy objects.  A single Service principal will be created but its access will be limited to mainly READ actions on the 'Network' Resource Group via a custom role.  
      - See the _**c0-azure-multi-res-group**_ Pipeline Variant for information.
-  
+
   - (\*) Availability Sets created by BOSH for each deployment job type
 
      - Availability sets provide a IaaS capability of allocating BOSH jobs across 1 or more fault or upgrade domains.   This will allow most Azure failures to not take down a complete job.  
      - Each BOSH job in Pivotal PCF releases will get their own availability set.
      - If a single Azure Fault Domain were to fail, and the affected jobs had >1 instances in an availability set,  the other instances would remain un-affected
      - See [here](https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-windows-manage-availability) for more information on Azure Availability Sets
-  
+
   - (1) Virtual Network (vnet) with a large range of address space that will be sub-divided
     - Example: 10.xxx.yyy.0/20
       - (1) Infra 10.xxx.yyy.0/26
@@ -59,10 +59,10 @@ Core Azure architectural constructs required to deploy PCF:
 
      **Note that a subnet is a logical component bound to a single Virtual Network and must exist in the the same Resource Group.  In Multi Resource Group deployments, as long as 'Network' & 'PCF' Resource Groups share the same region for PCF deployments, BOSH Jobs/VMs in one resource group can attach to networks in another.**
 
-  - (1) Network Security Group (NSG) - to meet security requirements, firewall rules that apply to network interfaces 
-  
+  - (1) Network Security Group (NSG) - to meet security requirements, firewall rules that apply to network interfaces
+
   (_Ops Manager for Azure currently limits PCF Deployments to 1 security group_)
-  
+
   - (4) Azure Load Balancers (ALBs)
     - (1) Public app access for API (or Control Path) and Apps (or Data Path)
     - (1) Internal use, for example MySQL
@@ -123,9 +123,10 @@ Customer0 will 'validate' a limited number of variant scenarios from the Base te
 
 | Variant *{{azure__pcf_terraform_template}}*| Varient Description                   |
 | -----------------------------:|:-------------------------|
-|c0-azure-base|Base Template, single resource group, DNS integrated with C0 Dyn| 
+|c0-azure-base|Base Template, single resource group, DNS integrated with C0 Dyn|
 |c0-azure-poc|Base Template, with reduced number of cells and pipeline pause for manual DNS setup||
 |c0-azure-multi-res-group|Multi Resource Group deployment, DNS integrated with C0 Dyn||
+|c0-azure-multi-res-group-multi-lb|Multi Resource Group - Multi Load Balander deployment, No pipeline||
 
 ##### c0-azure-multi-res-group
 
@@ -155,7 +156,7 @@ Key Design Points:
     "AssignableScopes": ["/subscriptions/[YOUR_SUBSCRIPTION_ID]"]
    }
    ```
-   
+
 - Custom Role for BOSH Service Principal, applied to Subscription, allowing Terraform to function
 
    ```
@@ -170,3 +171,14 @@ Key Design Points:
        "AssignableScopes": ["/subscriptions/[YOUR_SUBSCRIPTION_ID]"]
    }
    ```
+
+##### c0-azure-multi-res-group-multi-lb
+
+![](../static/azure/images/PCF-Azure-RefArch-Customer0/multi-resgroup-multi-lb.png)
+
+Key Design Points:
+
+- Two load balanced paths to PCF
+  - One path to the ALB for API access which consumes a private IP that DNS resolves to the system domain.
+  - One path to the ALB for Application access which consumes a public or private IP that DNS resolves to the apps domain.
+- At this time, Azure does not allow the go-routers to be members of more than one Azure load balancer (ALB) member pool for the same port(s) (i.e. 80 & 443). This requires an additional reverse proxy to front the go-routers to allow it to expose traffic on these ports for the system domain.
