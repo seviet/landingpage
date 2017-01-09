@@ -1,13 +1,17 @@
-#Customer0 RefArchs
+#Customer[0] Reference Architectures
+
+### vSphere
+
+- [Main Reference Architecture w/embedded links](https://github.com/c0-ops/landingpage/blob/master/vsphere/refarch-main.md)
 
 ### Azure
 
-- [RefArch](https://github.com/c0-ops/landingpage/blob/master/azure/refarch-main.md)
+- [Main Reference Architecture w/embedded links](https://github.com/c0-ops/landingpage/blob/master/azure/refarch-main.md)
 
 ### GCP
 
-- [RefArch](https://github.com/c0-ops/landingpage/blob/master/gcp/refarch-main.md)
+- [Main Reference Architecture w/embedded links](https://github.com/c0-ops/landingpage/blob/master/gcp/refarch-main.md)
 
 ### AWS
 
-- [RefArch](https://github.com/c0-ops/landingpage/blob/master/aws/refarch-main.md)
+- [Main Reference Architecture w/embedded links](https://github.com/c0-ops/landingpage/blob/master/aws/refarch-main.md)
