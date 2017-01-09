@@ -97,7 +97,9 @@ Core Azure architectural constructs required to deploy PCF:
     - Optional (1) HTTPS Ops Manager
     - Optional (1) SSH Proxy to Diego Brains
 
+
   **NOTE: Public IPs are not mandated if deploying with a VPN or Express Route Solution that does not require public IP access**
+
 
 ### Network Topology
 
