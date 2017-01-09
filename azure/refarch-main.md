@@ -2,14 +2,12 @@
 
 __Summary__: Customer[0] Reference Architectures are utilized by Pivotal's Customer[0] group to simulate a base deployment of our products that is common to as many customer use cases as possible. These architectures are then automated via concourse pipelines and 'validated' thru various Customer[0] validation scenarios to simulate common customer use cases.
 
-This PCF on Azure reference architecture is published as is with no warranty or support expressed or implied.
-
-Validation Key Info (STATUS=Draft WIP)
+Validation Key Info
 
 | PCF Products Validated        | Version                   |
 | ----------------------------- |:-------------------------:|
-| PCF Ops Manager               | 1.8.latest |
-| Elastic Runtime               | 1.8.latest                |
+| PCF Ops Manager               | 1.8.latest, 1.9.latest |
+| Elastic Runtime               | 1.8.latest, 1.9.latest                |
 
 ### Pivotal Customer[0] Reference Architecture Overview
 
