@@ -6,34 +6,36 @@
 
 *__Non-Goals__*:
 
-- This PCF on vSphere reference architecture is published as is with no warranty or support expressed or implied!
-- This document is NOT intended to replace the basic installation documentation located @ [docs.pivotal.io](http://docs.pivotal.io/pivotalcf/1-8/customizing/vsphere.html), but rather to demonstrate how those instructions should be related to a recommended Pivotal Cloud Foundry Installation.
+- This PCF on vSphere reference architecture is published as is with no warranty or support expressed or implied.
+- This document is not intended to replace the basic installation documentation located @ [docs.pivotal.io](http://docs.pivotal.io/pivotalcf/1-8/customizing/vsphere.html), but rather to demonstrate how those instructions should be related to a recommended Pivotal Cloud Foundry installation.
 
 | PCF Products Validated        | Version                   |
 | ----------------------------- |:-------------------------:|
-| PCF Ops Manager               | 1.8.latest                |
-| Elastic Runtime               | 1.8.latest                |
+| PCF Ops Manager               | 1.9.latest                |
+| Elastic Runtime               | 1.9.latest                |
 
 ### Pivotal Customer[0] Reference Architecture Overview
 
-  ![](../static/vsphere/images/overview.png)
+  ![](../static/vsphere/images/overview-2-2017.png)
 
 - [Pipeline Repo Link](https://github.com/c0-ops/vsphere-concourse) : Customer[0] Concourse Pipelines
 - [Pipeline ERT Repo Link](https://github.com/c0-ops/ert-concourse) : Customer[0] Concourse Pipelines
 - [Running Pipeline Link](https://fly.customer0.net/teams/main/pipelines/vsphere-base) : See the Running Customer[0] Concourse Pipelines
 
-The reference approach is to create three Clusters, populate them with the Resource Pools and then deploy PCF with Pivotal Operations Manager into those pools, one pool per Cluster. Core networking is created via an NSX Edge with the following subnets:
+The reference approach is to create three Clusters, populate them with the Resource Pools and then deploy PCF with Pivotal Ops Manager into those pools, one pool per cluster. Every AZ in PCF maps to a resource pool in a cluster, never the cluster itself, to provide resource separation and a organizational model aligned to the installation.
+
+Core networking is created via an NSX Edge with the following subnets:
   - Infrastructure
   - ERT (_Elastic Runtime_)
   - Service tiles (one or more)
 
-This model is the gold standard for deploying one or more PCF installations for long term use and growth, while allowing for capacity growth at the vSphere level and also maximum installation security.
+This model is the gold standard for deploying one or more PCF installations for long term use and growth, allowing for capacity growth at the vSphere level, app capacity growth in PCF and also maximum installation security.
 
-Depicted here a two PCF installations sharing the same vSphere capacity, yet segmented from each other with Resource Pools (the dotted line rectangles). This approach can easily scale to many PCF installations on the same capacity with the assurance that each is resource protected and separate from each other. Priority can be given to one or another installation if desired thru the use of "shares" applied at the pool level ("High Shares" for the important installation, "Low Shares" for the sacrificial one(s)).
+This diagram shows two PCF installations sharing the same vSphere capacity, yet segmented from each other with Resource Pools (the dotted line rectangles). This approach can easily scale to many PCF installations on the same capacity with the assurance that each is resource protected and separate from each other. Priority can be given to one or another installation if desired thru the use of "shares" applied at the pool level ("High Shares" for the important installation, "Low Shares" for the sacrificial one(s)).
 
 *__Compute__*:
 
-Each Cluster is populated by a minimum of three ESXi hosts, making nine hosts for each installation in a stripped manner. All installations draw form the same nine hosts in an aggregated fashion. Vertical growth is accomplished thru adding more pools and PCF installations, horizontal growth is via adding more hosts to the existing clusters (in sets of three, one per Cluster), from which all the installations can gain access to the added capacity.
+Each Cluster is populated by a minimum of three ESXi hosts, making nine hosts for each PCF installation in a stripped manner. All installations tap the capacity of the same nine hosts in an aggregated fashion. Vertical growth is accomplished thru adding more pools and PCF installations, horizontal growth is via adding more hosts to the existing clusters (in threes, one host per Cluster), from which all the installations can gain access to the added capacity.
 
 It is a VMware best practice to deploy hosts in Clusters of no less that three for vSphere HA use. vSphere DRS is a required function to enable Resource Pools and allow for automated vMotion.
 
