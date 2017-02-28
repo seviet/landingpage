@@ -183,3 +183,27 @@ In this procedure you will marry the NSX Edge’s IP address used for load balan
 		-	Set Protocol to TCP and set Port to 2222.
 		-	Set Default Pool to the pool name set in the previous step (diego-brains). This connects this VIP to that pool of resources being balanced to.
 		-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+
+## NAT/SNAT configuration
+
+The NSX Edge obfuscates the PCF installation thru network translation. The PCF installation is placed entirely on non-routable RFC-1918 network address space, so to be useful, you must translate routable IPs to non-routable IPs to make connections.
+
+icon icon-alert _This step is required for the installation to function properly._
+
+|Action|Applied on Interface|Original IP|Original Port|Translated IP|Translated Port|Protocol|Description|
+|---|---|---|---|---|---|---|---|
+|SNAT|uplink|192.168.0.0/16|any|IP_of_PCF|any|any|All Nets Egress|
+|DNAT|uplink|IP_of_OpsMgr|22|192.168.10.OpsMgr|22|tcp|SSH OpsMgr|
+|DNAT|uplink|IP_of_OpsMgr|80|192.168.10.OpsMgr|80|tcp|HTTP OpsMgr|
+|DNAT|uplink|IP_of_OpsMgr|443|192.168.10.OpsMgr|443|tcp|HTTPS OpsMgr|
+|DNAT|uplink|IP_of_DiegoBrain|2222|192.168.10.DiegoBrain|2222|tcp|SSH Apps|
+
+_This function is not required if routable IP address space is used on the Tenant Side of the NSX Edge. At that point, the NSX Edge simply performs routing between the address segments._
+
+# Conclusion
+
+It should be noted that the NSX Edge Gateway does also support scenarios where Private RFC subnets & NAT are not utilized for ‘Deployment’ or ‘Infrastructure’ networks, and the guidance in this document can be modified to meet those scenarios.  Additionally, the NSX Edge supports up to 10 Interfaces allowing for more Uplink options if necessary.
+
+This document is intended to present the reader with the fundamental configuration options of an NSX Edge with PCF.   Its purpose is not to dictate the settings required on every deployment, but instead to empower the NSX Administrator with the ability to have a known good ‘base’ and apply specific security configurations as required.
+
+With respect to the Private RFC-1918 subnets for PCF Deployment networks.  This architecture was chosen due to it popularity with customers, NSX Edge devices are capable of leveraging OSPF, BGP, & IS-IS to handle dynamic routing of customer and/or public L3 IP space.  That design is out of scope for this document, but is supported by VMware NSX & Pivotal PCF.
