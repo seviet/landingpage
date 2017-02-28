@@ -153,42 +153,46 @@ In this procedure you will marry the NSX Edge’s IP address used for load balan
 
 	![Router Pool](../static/vsphere/images/router-pool.png)
 
+-	Create Virtual Servers. This is the VIP, or virtual IP that the load balancer will use to represent the pool of gorouters to the outside world. This also links the Application Policy, Application Rules, and backend pools to provide PCF load balancing services.  This is the interface that the load balancer balances FROM. You will create 3 Virtual Servers.
 
-	-	Create Virtual Servers. This is the VIP, or virtual IP that the load balancer will use to represent the pool of gorouters to the outside world. This also links the Application Policy, Application Rules, and backend pools to provide PCF load balancing services.  This is the inferface that the load balancer balances FROM. You will create 3 Virtual Servers.
-		-	Navigate to Edge -> Manage –> Load Balancer -> Virtual Servers
-			-	Select an IP address from the available routable address space allocated to the NSX Edge (see section General Overview above about reserved IPs)
-			-	Create a new Virtual Server named “GoRtr-HTTP” and select Application Profile “PCF-HTTP”
-				-	Use “Select IP Address” to select the IP to use as a VIP on the uplink interface
-				-	Set Protocol to match the Application Profile protocol (HTTP) and set Port to match the protocol (80)
-				-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
-				-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
-				-	Switch to Advanced Tab on this Virtual Server
-				-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
-					-	option httplog
-					-	option forwardfor
-					-	reqadd X-Forwarded-Proto:\ http
+_Navigate to Edge -> Manage –> Load Balancer -> Virtual Servers_
+
+		-	Select an IP address from the available routable address space allocated to the NSX Edge (see section General Overview above about reserved IPs)
+		-	Create a new Virtual Server named “GoRtr-HTTP” and select Application Profile “PCF-HTTP”
+			-	Use “Select IP Address” to select the IP to use as a VIP on the uplink interface
+			-	Set Protocol to match the Application Profile protocol (HTTP) and set Port to match the protocol (80)
+			-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
+			-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+			-	Switch to Advanced Tab on this Virtual Server
+			-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
+				-	option httplog
+				-	option forwardfor
+				-	reqadd X-Forwarded-Proto:\ http
 
 		-	Create a new Virtual Server named “GoRtr-HTTPS” and select Application Profile “PCF-HTTPS”
-		-	Use “Select IP Address” to select the same IP to use as a VIP on the uplink interface
-		-	Set Protocol to match the Application Profile protocol (HTTPS) and set Port to match the protocol (443)
-		-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
-		-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
-		-	Switch to Advanced Tab on this Virtual Server
-		-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
-			-	option httplog
-			-	option forwardfor
-			-	reqadd X-Forwarded-Proto:\ https
+			-	Use “Select IP Address” to select the **same IP** to use as a VIP on the uplink interface
+			-	Set Protocol to match the Application Profile protocol (HTTPS) and set Port to match the protocol (443)
+			-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
+			-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+			-	Switch to Advanced Tab on this Virtual Server
+			-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
+				-	option httplog
+				-	option forwardfor
+				-	reqadd X-Forwarded-Proto:\ https
+
 		-	Create a new Virtual Server named “SSH-DiegoBrains” and select Application Profile “PCF-HTTPS”
-		-	Use “Select IP Address” to select the same IP to use as a VIP on the uplink interface if you want to use this address for SSH access to apps. If not, select a different IP to use as the VIP.
-		-	Set Protocol to TCP and set Port to 2222.
-		-	Set Default Pool to the pool name set in the previous step (diego-brains). This connects this VIP to that pool of resources being balanced to.
-		-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+			-	Use “Select IP Address” to select the same IP to use as a VIP on the uplink interface if you want to use this address for SSH access to apps. If not, select a different IP to use as the VIP.
+			-	Set Protocol to TCP and set Port to 2222.
+			-	Set Default Pool to the pool name set in the previous step (diego-brains). This connects this VIP to that pool of resources being balanced to.
+			-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+
+![VIPs](../static/vsphere/images/vip-3.png)
 
 ## NAT/SNAT configuration
 
 The NSX Edge obfuscates the PCF installation thru network translation. The PCF installation is placed entirely on non-routable RFC-1918 network address space, so to be useful, you must translate routable IPs to non-routable IPs to make connections.
 
-icon icon-alert _This step is required for the installation to function properly._
+_This step is required for the installation to function properly._
 
 |Action|Applied on Interface|Original IP|Original Port|Translated IP|Translated Port|Protocol|Description|
 |---|---|---|---|---|---|---|---|
@@ -196,7 +200,6 @@ icon icon-alert _This step is required for the installation to function properly
 |DNAT|uplink|IP_of_OpsMgr|22|192.168.10.OpsMgr|22|tcp|SSH OpsMgr|
 |DNAT|uplink|IP_of_OpsMgr|80|192.168.10.OpsMgr|80|tcp|HTTP OpsMgr|
 |DNAT|uplink|IP_of_OpsMgr|443|192.168.10.OpsMgr|443|tcp|HTTPS OpsMgr|
-|DNAT|uplink|IP_of_DiegoBrain|2222|192.168.10.DiegoBrain|2222|tcp|SSH Apps|
 
 _This function is not required if routable IP address space is used on the Tenant Side of the NSX Edge. At that point, the NSX Edge simply performs routing between the address segments._
 
