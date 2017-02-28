@@ -28,6 +28,7 @@ Core networking is created via an NSX Edge with the following subnets:
   - Infrastructure
   - ERT (_Elastic Runtime_)
   - Service tiles (one or more)
+  - Dynamic service tiles (a network managed entirely by BOSH Director)
 
 This model is the gold standard for deploying one or more PCF installations for long term use and growth, allowing for capacity growth at the vSphere level, app capacity growth in PCF and also maximum installation security.
 
@@ -43,27 +44,29 @@ It is a VMware best practice to deploy hosts in Clusters of no less that three f
 
 Storage is granted to the hosts in one of two common approaches:
 1. Datastores are granted to all hosts and a subset are offered to one installation at a time.
-2. Datastores are granted to a host cluster uniquiely and each installation uses multiple datastores to store VMs per cluster.
+2. Datastores are granted to a host cluster uniquely and each installation uses multiple datastores to store VMs per cluster.
 
 Example (1): There are 6 datastores, "ds01" thru "ds06". All nine hosts are granted access to all six datastores. PCF installation #1 is provisioned to use "ds01", "ds02", and "ds03" and VMs land in all the pools starting in "ds01" until it's full, then "ds02" is used and so on.
 
 Example (2): There are 6 datastores, "ds01" thru "ds06". Cluster 1 hosts are granted "ds01" and "ds02", Cluster 2 hosts are granted "ds03" and "ds04", and so on. PCF installation #1 is provisioned to use "ds01", "ds03" and "ds05" and all VMs land on the datastore correct for the cluster they are provisioned to. This is how vSphere VSAN works.
 
-Datastore sizing is recommended to be 8 TB per, two per PCF installation, or smaller volumes that aggregate up to this quantity. Small installations that won't have many tiles added can use less, 4 TB times two per PCF is reasonable.
+Datastore sizing is recommended at 8 TB per installation, or smaller volumes that aggregate up to this quantity. Small installations that won't have many tiles added can use less, 4 TB per PCF is reasonable. The primary consumer of storage is the NFS/WebDav blobstore.
+
+  _As of this publication (reference PCF versions above), PCF does not support the use of vSphere Storage Clusters. Datastores should be listed individually in the vSphere tile._
 
   _If a vSphere datastore is part of a vSphere Storage Cluster using sDRS (storage DRS), the sDRS feature must be disabled on the datastores used by PCF as s-vMotion activity will cause BOSH to malfunction as a result of renaming managed independent disks._
 
-Recommended types of storage are block-based (fiber channel or iSCSI) and file-based (NFS) over high speed carriers such as 6G FC or 10GigE. Redundant storage is highly recommended for the "persistent" storage type used by PCF. DASD or JBOD can be used for the "ephemeral" storage type.
+Recommended types of storage are block-based (fiber channel or iSCSI) and file-based (NFS) over high speed carriers such as 8Gb FC or 10GigE. Redundant storage is highly recommended for the "persistent" storage type used by PCF. DASD or JBOD can be used for the "ephemeral" storage type.
 
 *__Networking__*
 
 The above model employs VMware NSX SDN (software-defined networking) to provide unique benefits to the PCF installation on vSphere. Refer to subsequent chapters in this document for treatments of this approach where NSX is not used.
 
-The use of NSX is an optional, but highly recommended addition to the installation approach, as it adds many powerful elements:
+The use of NSX is an optional, but highly recommended, addition to the installation approach, as it adds many powerful elements:
 
-  1. Firewall capability per-installation thru the built-in Edge firewall
-  2. High capacity, resilient load balancing per-installation thru the NSX Load Balancer
-  3. Installation obfuscation thru the use of non-routed RFC networks behind the NSX Edge and the use of SNAT/DNAT connections to expose only the endpoints of Cloud Foundry that need exposure.
+  1. Distributed firewall capability per-installation thru the built-in Edge Firewall
+  2. High capacity, resilient, distributed load balancing per-installation thru the NSX Load Balancer
+  3. Installation obfuscation thru the use of non-routed RFC-1918 networks behind the NSX Edge and the use of SNAT/DNAT connections to expose only the endpoints of Cloud Foundry that need exposure.
   4. High repeatability of installations thru the repeat use of all network and addressing conventions on the right hand side of the diagram (the Tenant Side)
   5. Automatic rule and ACL sharing via NSX Manager Global Ruleset
   6. Automatic HA pairing of NSX Edges, managed by NSX Manager
@@ -77,48 +80,50 @@ NSX DLB (Distributed Load Balancing) isn't used as it's not considered productio
 
 *__Networking Design__*
 
-Each PCF installation consumes three (or more) networks from the NSX Edge, aligned to specific jobs:
+Each PCF installation consumes four (or more) networks with the NSX Edge, aligned to specific jobs:
 
-- "Infrastruture": A network with a small CIDR range for use with those resources focused on interacting with the IaaS layer and back-office systems. This is an "inward-facing" network, where Ops Manager, BOSH ad other utility VMs such as jump box VM would connect.
+- "Infrastructure": A network with a small CIDR range for use with those resources focused on interacting with the IaaS layer and back-office systems. This is an "inward-facing" network, where Ops Manager, BOSH ad other utility VMs such as jump box VM would connect.
 - "Deployment": A network with a large CIDR range exclusively used by the ERT tile to deploy app containers and related support components. Also known as "the apps wire".
-- "Services": At least one, if not more, with a large CIDR range for use with other installations hosted and managed by BOSH via Ops Manager. A simple approach is to use this network for all PCF tiles except ERT. A more involved approach would be to deploy multiple "Services-#" networks, one for each tile or one for each type of tile, say databases vs message busses and so on.
+- "CF Tiles": At least one, if not more, with a large CIDR range for use with other installations hosted and managed by BOSH via Ops Manager. A simple approach is to use this network for all PCF tiles except ERT. A more involved approach would be to deploy multiple "Services-#" networks, one for each tile or one for each type of tile, say databases vs message busses and so on.
+- "Dynamic Services": A single network granted to BOSH Director for use with service tiles that require dynamic address space to deploy onto. This is the only network that will be marked as "Services" with a check box in the vSphere tile.
 
-All of these networks are considered "inside" or "tenant-side" networks, and use non-routable RFC network space to make provisioning repeatable. The NSX Edge translates between the tenant and service provider side networks using SNAT and DNAT.
+All of these networks are considered "inside" or "tenant-side" networks, and use non-routable RFC-1918 network space to make provisioning repeatable. The NSX Edge translates between the tenant and service provider side networks using SNAT and DNAT.
 
 Each NSX Edge should be provisioned with at least four service provider side (routable) IPs:
 
 1. A static IP by which NSX Manager will manage the NSX Edge
 2. A static IP for use as egress SNAT (traffic from tenant side will exit the Edge on this IP)
 3. A static IP for DNATs to Ops Manager
-4. A static IP for the load balancer VIP that will balance to a pool of PCF Go Routers
+4. A static IP for the load balancer VIP that will balance to a pool of PCF GoRouters (HTTP/HTTPS)
 
   _There are many more uses for IPs on the routed side of the Edge. Ten reserved, contiguous static IPs are recommended per NSX Edge for flexibility and future needs._
 
 On the tenant side, each interface on the Edge that is defines will act as the IP gateway for the network used on that port group. The following are recommend for use on these networks:
 - "Infra" network: 192.168.10.0/26, Gateway at .1
 - "Deployment" network: 192.168.20.0/22, Gateway at .1
-- "Services" network: 192.168.24.0/22, Gateway at .1
-- _"Services-B" network: 192.168.28.0/22, and so on..._
+- "CF Tiles" network: 192.168.24.0/22, Gateway at .1
+- "Dynamic Services" network: 192.168.28.0/22, Gateway at .1
+- _Future Use: "Services-B" network: 192.168.32.0/22, and so on..._
 
   ![Network Example](../static/vsphere/images/PCF RefArch vSphere Exploded Edge.png)
 
-  vSphere DVS (distributed virtual switching) is recommended for all Clusters used by PCF. NSX will create a DPG (distributed port group) for each interface provisioned on the NSX Edge.
+  vSphere DVS (Distributed Virtual Switching) is recommended for all Clusters used by PCF. NSX will create a DPG (distributed port group) for each interface provisioned on the NSX Edge. Alternatively, NSX Logical Switches can be used on the Tenant Side of this design, which leverages vWires, reducing the dependency on VLAN address space.
 
   ![Port Groups](../static/vsphere/images/PCF RefArch vSphere Port Groups.png)
 
 ### Reference Approach Without VMware NSX
 
-In the absence of VMware NSX SDN technology, the PCF installation on vSphere follows the standard approach discussed in the documentation. For the purposes of this reference architecture, it would be easist to explore what changes and/or is lost in this approach.
+In the absence of VMware NSX SDN technology, the PCF installation on vSphere follows the standard approach discussed in the documentation. For the purposes of this reference architecture, it would be easiest to explore what changes and/or is lost in this approach.
 
 *__Networking Features__*
 
 - Load balancing would have to be hosted by some external service, such as a hardware appliance or VM from a 3rd party. This also applies to SSL termination.
-- Pre-installation firewalling would be lost, as the traditional approach to firewalling inside systems is per zone or per network, not per virtual appliance installation that spans multiple networks.
-- The need to SNAT/DNAT non-routable RFC networks used with PCF would go away as it's unlikely they would be used at all without the NSX Edge there to provide the boundary. In it's place a single, or possible multiple VLANs from the routable network space already deployed in the datacenter would be used.
+- Per-installation firewalling would be lost, as the traditional approach to firewalling inside systems is per zone or per network, not per virtual appliance installation that spans multiple networks.
+- The need to SNAT/DNAT non-routable RFC-1918 networks used with PCF would go away as it's unlikely they would be used at all without the NSX Edge there to provide the boundary. In it's place a single, or possible multiple VLANs from the routable network space already deployed in the datacenter would be used.
 
 *__Networking Design__*
 
-The more traditional approach without SDN would be to deploy a single VLAN for use with all of PCF, or possibly a pair of VLANs (one for infrastructure and one for PCF).
+The more traditional approach without SDN would be to deploy a single VLAN for use with all of PCF, or possibly a pair of VLANs (one for infrastructure and one for PCF). As VLAN capacity is frequently limited and scarce, this design seeks to limit the need for VLANs to a functional minimum.
 
   ![PCF without SDN Model](../static/vsphere/images/PCF RefArch vSphere noNSX.png)
 
@@ -129,9 +134,11 @@ In this example, the functions of firewall and load balancer have been moved out
 
 Each one of these port groups typically is assigned a VLAN out of the datacenter's pool and a routable IP address segment. Routing functions are handled by switching layers outside of vSphere, such as TOR or EOR switch/router.
 
+It's still valid to deploy all the networks shown in the original design, so if the resources are readily available, feel free. The main thing to keep in mind is that this is a requirement per PCF installation, so keep a count of how many of those overall you will require.
+
 ### Reference Approach Without Three Clusters
 
-Some desire to start with PCF aligned to less resource than the standard (above) calls for, so the starting point for that is a single Cluster. If you are working with at least three ESXi hosts, the recommended guidance is still to setup in three Clusters, even with one host in each (such that the HA comes fro the PasS, not the IaaS), but for less than that, place all available hosts into a single Cluster with DRS and HA enabled.
+Some desire to start with PCF aligned to fewer resources than the standard (above) calls for, so the starting point for that is a single Cluster. If you are working with at least three ESXi hosts, the recommended guidance is still to setup in three Clusters, even with one host in each (such that the HA comes from the PasS, not the IaaS), but for less than that, place all available hosts into a single Cluster with DRS and HA enabled.
 
   ![PCF Single Cluster Model](../static/vsphere/images/PCF RefArch vSphere oneCluster.png)
 
@@ -139,11 +146,11 @@ A two Cluster configuration has little value compared to a single or triple clus
 
 *__Network Design__*
 
-It is recommended to use the networking approach detailed in either the with-NSX or without-NSX sections for this design, as the compute arrangement has little impact on how PCF in networked for production use.
+It is recommended to use the networking approach detailed in either the with-NSX or without-NSX sections for this design, as the compute arrangement has little impact on how PCF is networked for production use.
 
 *__Storage__*
 
-It is recommended that all datastores to be used by PCF be mapped to all the hosts in the single cluster. Otherwise, follow the guidance from (above).
+It is recommended that all datastores to be used by PCF be mapped to all the hosts in the single cluster. Otherwise, follow the guidance from above.
 
 ### Reference Approach Utilizing Multi-Datacenter
 
