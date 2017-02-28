@@ -14,33 +14,34 @@ This cookbook is intended to provide simple guidance on using an NSX Edge to pro
 
 For detailed install & configure information on the above products, please refer to the following:
 
--	https://www.vmware.com/support/pubs/vsphere-esxi-vcenter-server-pubs.html
--	https://pubs.vmware.com/NSX-6/topic/com.vmware.ICbase/PDF/nsx_6_install.pdf
--	https://www.vmware.com/files/pdf/products/nsx/vmw-nsx-network-virtualization-design-guide.pdf
--	http://docs.pivotal.io/pivotalcf/getstarted/pcf-docs.html
+-	[vSphere Docs](https://www.vmware.com/support/pubs/vsphere-esxi-vcenter-server-pubs.html)
+-	[NSX Install Guide](https://pubs.vmware.com/NSX-6/topic/com.vmware.ICbase/PDF/nsx_6_install.pdf)
+-	[NSX Design Guide](https://www.vmware.com/files/pdf/products/nsx/vmw-nsx-network-virtualization-design-guide.pdf)
+-	[Pivotal Cloud Foundry Docs](http://docs.pivotal.io/pivotalcf/getstarted/pcf-docs.html)
 
 ## General Overview
 
-This cookbook will follow a three-step recipe to deploy a PCF foundation behind an NSX Edge: Configure Firewall, Configure Load Balancer, Configure NAT/SNAT. The NSX Edge can scale up to very large PCF deployments depending on the size of the Edge at deployment.
+This cookbook will follow a three-step recipe to deploy a PCF foundation behind an NSX Edge: Configure Firewall, Configure Load Balancer, Configure NAT/SNAT. The NSX Edge can scale up to very large PCF deployments as needed.
 
 This cookbook will focus on a single site foundation & will make the following design assumptions:
 
--	There will be three non-routable networks on the tenant (inside) side of the NSX Edge
+-	There will be four non-routable networks on the tenant (inside) side of the NSX Edge
 	 - The “Infra” network will be used to deploy Ops Manager and BOSH Director
    -	The “Deployment” network will be use exclusively by Elastic Runtime for deploying DAEs/Cells for hosting apps & related elements
-   -	The “Services” network will be used for all other deployed Tiles in a PCF installation
+   -	The “CF Tiles” network will be used for all other deployed Tiles in a PCF installation
+	 - The "Dynamic Services" network will be used by BOSH Director for service tiles
 -	There will be a single service provider (outside) interface on the NSX Edge that will provide Firewall, Load Balancing & NAT/SNAT services.
 -	Routable IPs should be applied to the service provider (outside) interface of the NSX Edge. It is recommended that 10 consecutive routable IPs be applied to each NSX Edge.
   -	One reserved for NSX use (Controller to Edge I/F)
-  -	One for NSX Load Balancer
+  -	One for NSX Load Balancer to GoRouters
+	- One for NSX Load Balancer to Diego Brains for SSH to apps
   -	One routable IP for use to front-end Ops Manager
   -	One routable IP for use with SNAT egress
-  -	One for monitoring
   -	Five for future use
 
-It is recommended that the NSX Edges be deployed as HA pairs in vSphere. Also, it is recommended that they be sized “large” or greater for any pre-prod or prod use.
+It is recommended that the NSX Edges be deployed as HA pairs in vSphere. Also, it is recommended that they be sized “large” or greater for any pre-prod or prod use. The deployed size of the NSX Edge impacts it's overall performance, including how many SSL tunnels it can terminate.
 
-The NSX Edges will have a leg in each port group used by PCF as well as a port group on the service provider (outside), often called the “transit network”. Each PCF installation will have a set of port groups in a vSphere DVS to support connectivity, so that the NSX Edge arrangement is repeated for every PCF install. It is not necessary to build a DVS for each NSX Edge/PCF install. You do not re-use an NSX Edge amongst PCF deployments.
+The NSX Edges will have an interface in each port group used by PCF as well as a port group on the service provider (outside), often called the “transit network”. Each PCF installation will have a set of port groups in a vSphere DVS to support connectivity, so that the NSX Edge arrangement is repeated for every PCF install. It is not necessary to build a DVS for each NSX Edge/PCF install. You do not re-use an NSX Edge amongst PCF deployments. NSX Logical Switches (VXLAN vWires) are ideal candidates for use with this architecture.
 
 Example:
 
@@ -54,7 +55,7 @@ Example:
 
 The following steps are required for Networking Overview Image:
 
-Pre-Req: DNS: Create Wildcard DNS Entries for System & Apps domains in PCF to map to the selected IP on the uplink (outside) interface of the NSX Edge in your DNS server. The wildcard DNS A record must resolve to an IP associated with the outside interface of the NSX Edge for it to function as a load balancer. You can either use a single IP to resolve both the system and apps domain, or one IP for each (total of two).
+Pre-Req: DNS: Create Wildcard DNS Entries for System & Apps domains in PCF to map to the selected IP on the uplink (outside) interface of the NSX Edge in your DNS server. The wildcard DNS A record must resolve to an IP associated with the outside interface of the NSX Edge for it to function as a load balancer. You can either use a single IP to resolve both the system and apps domain, or one IP for each.
 
   1.	Assign IP Addresses to the “Uplink” (outside) interface
     *	Typically you will have one SNAT and three DNATs per NSX Edge
@@ -63,18 +64,18 @@ Pre-Req: DNS: Create Wildcard DNS Entries for System & Apps domains in PCF to ma
   2.	Assign ‘Internal’ Interface IP Address Space to the Edge Gateway.
     *	192.168.10.0/26 = PCF Deployment Network (Logical Switch or Port Group)
     *	192.168.20.0/22 = Deployment Network for Elastic Runtime Tile (ERT)
-    *	192.168.24.0/22 = Services Network for all Tiles besides ERT
+    *	192.168.24.0/22 = CF Tiles Network for all Tiles besides ERT
+		* 192.168.28.0/22 = Dynamic Services network for BOSH Director-managed service tiles
   3.	Enable load balancer function
   4.	Enable firewall
 
 ### Firewall Configuration
 
-This step will populate the NSX Edge internal firewall with rules to protect a PCF installation and provide granular control on what can be accessed within a PCF installation. For example, this can be used to allow or deny another PCF installation behind a different NSX Edge to access apps published within the installation you are protecting.
+This step will populate the NSX Edge internal firewall with rules to protect a PCF installation. They provide granular control on what can be accessed within a PCF installation. For example, this can be used to allow or deny another PCF installation behind a different NSX Edge access to apps published within the installation you are protecting.
 
-  : This step is not required for the installation to function properly as long as the firewall feature is disabled or set to “Allow All”.
+This step is not required for the installation to function properly when the firewall feature is disabled or set to “Allow All”.
 
   _Navigate to Edge -> Manage –> Firewall & set the following …_
-
 
   |  Name |  Source |  Destination | Service  |  Action |
   |---|---|---|---|---|
