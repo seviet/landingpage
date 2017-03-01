@@ -142,7 +142,7 @@ In this procedure you will marry the NSX Edge’s IP address used for load balan
 |reqadd X-Forwarded-Proto:\ https|reqadd X-Forwarded-Proto:\ https|
 |reqadd X-Forwarded-Proto:\ http|reqadd X-Forwarded-Proto:\ http|
 
-	![Application Rules](../static/vsphere/images/lb-app-rules.png)
+![Application Rules](../static/vsphere/images/lb-app-rules.png)
 
   -	Create “http-routers” Pool. This is the pool of resources that NSX Edge is balancing TO, which are the GoRouters deployed by BOSH Director.  If the IP addresses here don’t match exactly the IP addresses reserved or used for the GoRouters, the pool will not effectively balance.
     -	_Navigate to Edge -> Manage –> Load Balancer -> Pools_
