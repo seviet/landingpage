@@ -84,13 +84,13 @@ This step is not required for the installation to function properly when the fir
   |Allow Ingress -> SSH for Apps|any|IP_of_DiegoBrain:2222|any|Accept|
   |Allow Inside <-> Inside|192.168.10.0/26 192.168.20.0/22 192.168.24.0/22 192.168.28.0/22|192.168.10.0/26 192.168.20.0/22 192.168.24.0/22 192.168.28.0/22|any|Accept|
   |Allow Egress -> IaaS|192.168.10.0/26|IP_of_vCenter IPs_of_ESXi-Svrs|   |Accept|
-  |Allow Egress -> DNS|   |   |   |Accept|
-  |Allow Egress -> NTP|   |   |   |Accept|
-  |Allow Egress -> SYSLOG|   |   |   |Accept|
-  |Allow ICMP|   |   |   |Accept|
-  |Allow Egress -> LDAP|   |   |   |Accept|
-  |Allow Egress -> All Outbound|   |   |   |Accept|
-  |Default Rule|   |   |   |Deny|
+  |Allow Egress -> DNS|192.168.0.0/16|IPs_of_DNS|DNS, DNS-UDP|Accept|
+  |Allow Egress -> NTP|192.168.0.0/16|IPs_of_NTP|NTP|Accept|
+  |Allow Egress -> SYSLOG|192.168.0.0/16|IPs_of_Syslog:514|SYSLOG|Accept|
+  |Allow ICMP|192.168.10.0/26|\*|ICMP|Accept|
+  |Allow Egress -> LDAP|192.168.10.0/26 192.168.20.0/22|IPs_of_LDAP:389|LDAP, LDAP-over-ssl|Accept|
+  |Allow Egress -> All Outbound|192.168.0.0/16 IP_of_NSX-LB|any|any|Accept|
+  |Default Rule|any|any|any|Deny|
 
 ## Load Balancing Configuration
 
