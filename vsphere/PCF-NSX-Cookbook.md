@@ -111,64 +111,78 @@ What you will need:
 
 In this procedure you will marry the NSX Edge’s IP address used for load balancing with a series of internal IPs provisioned for GoRouters in PCF. It’s important to know the IPs used for the GoRouters beforehand. These can be pre-selected/reserved prior to deployment (recommended) or discovered after deployment by looking them up in BOSH Director, which will list them in the release information of the Elastic Runtime installation.
 
-  -	Import SSL Certificate.  PCF requires SSL termination at the load balancer.
-  _Navigate to Edge -> Manage –> Settings -> Certificates & set the following…_
-    -	Green Plus button to Add Certificate
-    -	Insert PEM file contents from Elastic Runtime/Networking
-    -	Save the results
-  -	Enable The Load Balancer
-  _Navigate to Edge -> Manage –> Load Balancer -> Global Configuration & set the following …_
-    -	Edit load balancer global configuration
+#### Import SSL Certificate.  PCF requires SSL termination at the load balancer.
+
+_Navigate to Edge -> Manage –> Settings -> Certificates & set the following…_
+  -	Green Plus button to Add Certificate
+  -	Insert PEM file contents from Elastic Runtime/Networking
+  -	Save the results
+
+#### Enable The Load Balancer
+_Navigate to Edge -> Manage –> Load Balancer -> Global Configuration & set the following …_
+
+  -	Edit load balancer global configuration
   -	Enable Load Balancer
   -	Enable Acceleration
   -	Set Logging to desired level (“Info” or greater)
-  -	Create Application Profiles.  The Application Profiles will allow advanced X-Forward options as well as linking to the SSL Certificate.  You will create two Profiles: “PCF-HTTP” & “PCF-HTTPS”.
-    -	_Navigate to Edge -> Manage –> Load Balancer -> Global Application Profiles & set the following …_
-    -	Create/Edit Profile and make “PCF-HTTP” rule, turning on “Insert X-Forwarded-For HTTP header
-    -	Create/Edit Profile and make “PCF-HTTPS” rule, same as before, but add the service certificate inserted before.
+
+#### Create Application Profiles.  The Application Profiles will allow advanced X-Forward options as well as linking to the SSL Certificate.  You will create two Profiles: “PCF-HTTP” & “PCF-HTTPS”.
+
+_Navigate to Edge -> Manage –> Load Balancer -> Global Application Profiles & set the following …_
+
+  -	Create/Edit Profile and make “PCF-HTTP” rule, turning on “Insert X-Forwarded-For HTTP header
+  -	Create/Edit Profile and make “PCF-HTTPS” rule, same as before, but add the service certificate inserted before.
 
   ![Application Profile: HTTP](../static/vsphere/images/app-profile-pcf-http.png)
 
   ![Application Profile: HTTPS](../static/vsphere/images/app-profile-pcf-https.png)
 
-  -	Create Application Rules. In order for the NSX Edge to perform proper X-Forwarded requests, a few HA Proxy directives need to be added to NSX Edge Application Rules.  NSX will support most directives that “HA Proxy” will support.
-    -	_Navigate to Edge -> Manage –> Load Balancer -> Application Rules & create the following …_
-    -	Copy/paste the table entries below into each field
+#### Create Application Rules.
+
+In order for the NSX Edge to perform proper X-Forwarded requests, a few HA Proxy directives need to be added to NSX Edge Application Rules.  NSX will support most directives that “HA Proxy” will support.
+
+_Navigate to Edge -> Manage –> Load Balancer -> Application Rules & create the following …_
+
+  -	Copy/paste the table entries below into each field
 
 |Rule Name|Script|
 |---|---|
 |option httplog|option httplog|
-|option forwardfor|option forwardfor|
 |reqadd X-Forwarded-Proto:\ https|reqadd X-Forwarded-Proto:\ https|
 |reqadd X-Forwarded-Proto:\ http|reqadd X-Forwarded-Proto:\ http|
 
 ![Application Rules](../static/vsphere/images/lb-app-rules.png)
 
-  -	Create “http-routers” Pool. This is the pool of resources that NSX Edge is balancing TO, which are the GoRouters deployed by BOSH Director.  If the IP addresses here don’t match exactly the IP addresses reserved or used for the GoRouters, the pool will not effectively balance.
-    -	_Navigate to Edge -> Manage –> Load Balancer -> Pools_
-    -	If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
-    -	Enter ALL the IP addresses reserved for GoRouters into this pool. If you reserved more addresses than you have GoRouters, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
+#### Create “http-routers” Pool.
+
+This is the pool of resources that NSX Edge is balancing TO, which are the GoRouters deployed by BOSH Director.  If the IP addresses here don’t match exactly the IP addresses reserved or used for the GoRouters, the pool will not effectively balance.
+
+_Navigate to Edge -> Manage –> Load Balancer -> Pools_
+
+  -	If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
+  -	Enter ALL the IP addresses reserved for GoRouters into this pool. If you reserved more addresses than you have GoRouters, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
   -	Note that the port & monitoring are on HTTP port 80; the assumption is that internal traffic from the NSX Edge load balancer to the gorouters is trusted, as it’s on a VXLAN secured within NSX. If using encrypted traffic inside the load balancer, adjust ports accordingly.
     -	Set the Algorithim to “ROUND-ROBIN”
     -	Set Monitors to “default_tcp_monitor”
 
 	![Router Pool](../static/vsphere/images/router-pool.png)
 
--	Create Virtual Servers. This is the VIP, or virtual IP that the load balancer will use to represent the pool of gorouters to the outside world. This also links the Application Policy, Application Rules, and backend pools to provide PCF load balancing services.  This is the interface that the load balancer balances FROM. You will create 3 Virtual Servers.
+#### Create Virtual Servers.
+
+This is the VIP, or virtual IP that the load balancer will use to represent the pool of gorouters to the outside world. This also links the Application Policy, Application Rules, and backend pools to provide PCF load balancing services.  This is the interface that the load balancer balances FROM. You will create 3 Virtual Servers.
 
 _Navigate to Edge -> Manage –> Load Balancer -> Virtual Servers_
 
-		-	Select an IP address from the available routable address space allocated to the NSX Edge (see section General Overview above about reserved IPs)
-		-	Create a new Virtual Server named “GoRtr-HTTP” and select Application Profile “PCF-HTTP”
-			-	Use “Select IP Address” to select the IP to use as a VIP on the uplink interface
-			-	Set Protocol to match the Application Profile protocol (HTTP) and set Port to match the protocol (80)
-			-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
-			-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
-			-	Switch to Advanced Tab on this Virtual Server
-			-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
-				-	option httplog
-				-	option forwardfor
-				-	reqadd X-Forwarded-Proto:\ http
+	-	Select an IP address from the available routable address space allocated to the NSX Edge (see section General Overview above about reserved IPs)
+	-	Create a new Virtual Server named “GoRtr-HTTP” and select Application Profile “PCF-HTTP”
+		-	Use “Select IP Address” to select the IP to use as a VIP on the uplink interface
+		-	Set Protocol to match the Application Profile protocol (HTTP) and set Port to match the protocol (80)
+		-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
+		-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+		-	Switch to Advanced Tab on this Virtual Server
+		-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
+			-	option httplog
+			-	reqadd X-Forwarded-Proto:\ http
 
 		-	Create a new Virtual Server named “GoRtr-HTTPS” and select Application Profile “PCF-HTTPS”
 			-	Use “Select IP Address” to select the **same IP** to use as a VIP on the uplink interface
