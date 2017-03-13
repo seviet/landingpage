@@ -105,11 +105,11 @@ On the tenant side, each interface on the Edge that is defines will act as the I
 - "Dynamic Services" network: 192.168.28.0/22, Gateway at .1
 - _Future Use: "Services-B" network: 192.168.32.0/22, and so on..._
 
-  ![Network Example](../static/vsphere/images/PCF RefArch vSphere Exploded Edge.png)
+  ![Network Example](../static/vsphere/images/PCF RefArch vSphere NSX v4 NSX Exploded.png)
 
   vSphere DVS (Distributed Virtual Switching) is recommended for all Clusters used by PCF. NSX will create a DPG (distributed port group) for each interface provisioned on the NSX Edge. Alternatively, NSX Logical Switches can be used on the Tenant Side of this design, which leverages vWires, reducing the dependency on VLAN address space.
 
-  ![Port Groups](../static/vsphere/images/PCF RefArch vSphere Port Groups.png)
+  ![Port Groups](../static/vsphere/images/PCF RefArch vSphere NSX v4 Port Groups.png)
 
 ### Reference Approach Without VMware NSX
 
