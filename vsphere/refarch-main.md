@@ -96,24 +96,30 @@ Each NSX Edge should be provisioned with at least four service provider side (ro
 3. A static IP for DNATs to Ops Manager
 4. A static IP for the load balancer VIP that will balance to a pool of PCF GoRouters (HTTP/HTTPS)
 
-  _There are many more uses for IPs on the routed side of the Edge. Ten reserved, contiguous static IPs are recommended per NSX Edge for flexibility and future needs._
+_There are many more uses for IPs on the routed side of the Edge. Ten total reserved, contiguous static IPs are recommended per NSX Edge for flexibility and future needs._
 
-On the tenant side, each interface on the Edge that is defines will act as the IP gateway for the network used on that port group. The following are recommend for use on these networks:
+On the tenant side, each interface on the Edge that is defined will act as the IP gateway for the network used on that port group. The following are recommend for use on these networks:
 - "Infra" network: 192.168.10.0/26, Gateway at .1
 - "Deployment" network: 192.168.20.0/22, Gateway at .1
 - "CF Tiles" network: 192.168.24.0/22, Gateway at .1
 - "Dynamic Services" network: 192.168.28.0/22, Gateway at .1
 - _Future Use: "Services-B" network: 192.168.32.0/22, and so on..._
 
-  ![Network Example](../static/vsphere/images/PCF RefArch vSphere NSX v4 Edge Exploded.png)
+![Network Example](../static/vsphere/images/PCF RefArch vSphere NSX v4 Edge Exploded.png)
 
-  vSphere DVS (Distributed Virtual Switching) is recommended for all Clusters used by PCF. NSX will create a DPG (distributed port group) for each interface provisioned on the NSX Edge. Alternatively, NSX Logical Switches can be used on the Tenant Side of this design, which leverages vWires, reducing the dependency on VLAN address space.
+vSphere NSX Logical Switches are recommended for use with the above networks. This approach avoids VLAN consumption while benefiting from the overlay capability NSX enables. NSX can create a DPG (Distributed Port Group) on a DVS (Distributed Virtual Switch) for each interface provisioned on the NSX Edge (as shown in the below diagram). Alternatively, port groups on a DVS with VLANs tagged on each can be used for the networks above.
 
-  ![Port Groups](../static/vsphere/images/PCF RefArch vSphere NSX v4 Port Groups.png)
+![Port Groups](../static/vsphere/images/PCF RefArch vSphere NSX v4 Port Groups.png)
+
+#### High Performance Variants
+
+*__One Armed Load Balancing__*
+
+The NSX Edge can act as a stand-alone, one-armed load balancer. This can improve performance and separate the dependence on the Edge that acts as NAT/SNAT/Firewall/Router by separating the load balancing function to a separate Edge deployed exclusively for use per installation. In short, you divide the jobs between two Edges per install rather than one. To implement, you would place a single interface (internal) of a new Edge on the Deployment network, enable the load balancing function and DNAT to it thru the boundary Edge.
 
 ### Reference Approach Without VMware NSX
 
-In the absence of VMware NSX SDN technology, the PCF installation on vSphere follows the standard approach discussed in the documentation. For the purposes of this reference architecture, it would be easiest to explore what changes and/or is lost in this approach.
+In the absence of VMware NSX SDN technology, the PCF installation on vSphere follows the standard approach discussed in the Pivotal documentation. For the purposes of this reference architecture, it would be easiest to explore what changes and/or is lost in this approach.
 
 *__Networking Features__*
 
@@ -125,7 +131,7 @@ In the absence of VMware NSX SDN technology, the PCF installation on vSphere fol
 
 The more traditional approach without SDN would be to deploy a single VLAN for use with all of PCF, or possibly a pair of VLANs (one for infrastructure and one for PCF). As VLAN capacity is frequently limited and scarce, this design seeks to limit the need for VLANs to a functional minimum.
 
-  ![PCF without SDN Model](../static/vsphere/images/PCF RefArch vSphere noNSX.png)
+![PCF without SDN Model](../static/vsphere/images/PCF RefArch vSphere noNSX.png)
 
 In this example, the functions of firewall and load balancer have been moved outside the of vSphere space to generic devices assumed to be available in the datacenter. The PCF installation is now bound to two port groups provided by a DVS on ESXi, each one aligned to a key use case:
 
