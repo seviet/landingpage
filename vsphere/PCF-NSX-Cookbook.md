@@ -45,7 +45,7 @@ The NSX Edges will have an interface in each port group used by PCF as well as a
 
 Example:
 
-  ![Port Groups](../static/vsphere/images/PCF RefArch vSphere Port Groups.png)
+  ![Port Groups](../static/vsphere/images/PCF RefArch vSphere NSX v4 Port Groups.png)
 
   The following is an example of a network architecture deployment.
 
