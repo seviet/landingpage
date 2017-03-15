@@ -46,11 +46,11 @@ The NSX Edges will have an interface in each port group used by PCF as well as a
 
 Example:
 
-  ![Port Groups](../static/vsphere/images/PCF RefArch vSphere NSX v4 Port Groups.png)
+![Port Groups](../static/vsphere/images/PCF RefArch vSphere NSX v4 Port Groups.png)
 
   The following is an example of a network architecture deployment.
 
-  ![Networking Overview Image](../static/vsphere/images/overview-2-2017.png)
+![Networking Overview Image](../static/vsphere/images/overview-2-2017.png)
 
 ## High Level Steps
 
@@ -58,17 +58,17 @@ The following steps are required for Networking Overview Image:
 
 Pre-Req: DNS: Create Wildcard DNS Entries for System & Apps domains in PCF to map to the selected IP on the uplink (outside) interface of the NSX Edge in your DNS server. The wildcard DNS A record must resolve to an IP associated with the outside interface of the NSX Edge for it to function as a load balancer. You can either use a single IP to resolve both the system and apps domain, or one IP for each.
 
-  1.	Assign IP Addresses to the “Uplink” (outside) interface
-    *	Typically you will have one SNAT and three DNATs per NSX Edge
-    *	IP associated for SNAT use: All PCF internal IPs will appear to be coming from this IP address at the NSX Edge.
-    *	IP associated with Ops Manager DNAT: This IP will be the publicly routable interface for Ops Manager UI and SSH access
-  2.	Assign ‘Internal’ Interface IP Address Space to the Edge Gateway.
-    *	192.168.10.0/26 = PCF Deployment Network (Logical Switch or Port Group)
-    *	192.168.20.0/22 = Deployment Network for Elastic Runtime Tile (ERT)
-    *	192.168.24.0/22 = CF Tiles Network for all Tiles besides ERT
-		* 192.168.28.0/22 = Dynamic Services network for BOSH Director-managed service tiles
-  3.	Enable load balancer function
-  4.	Enable firewall
+1.	Assign IP Addresses to the “Uplink” (outside) interface
+  *	Typically you will have one SNAT and three DNATs per NSX Edge
+  *	IP associated for SNAT use: All PCF internal IPs will appear to be coming from this IP address at the NSX Edge.
+  *	IP associated with Ops Manager DNAT: This IP will be the publicly routable interface for Ops Manager UI and SSH access
+2.	Assign ‘Internal’ Interface IP Address Space to the Edge Gateway.
+  *	192.168.10.0/26 = PCF Deployment Network (Logical Switch or Port Group)
+  *	192.168.20.0/22 = Deployment Network for Elastic Runtime Tile (ERT)
+  *	192.168.24.0/22 = CF Tiles Network for all Tiles besides ERT
+	* 192.168.28.0/22 = Dynamic Services network for BOSH Director-managed service tiles
+3.	Enable load balancer function
+4.	Enable firewall
 
 ### Firewall Configuration
 
@@ -78,21 +78,21 @@ This step is not required for the installation to function properly when the fir
 
   _Navigate to Edge -> Manage –> Firewall & set the following …_
 
-  |  Name |  Source |  Destination | Service  |  Action |
-  |---|---|---|---|---|
-  |Allow Ingress -> Ops Manager|any|IP_of_OpsMgr|SSH, HTTP, HTTPS|Accept|
-  |Allow Ingress -> Elastic Runtime|any|IP_of_NSX-LB|HTTP, HTTPS|Accept|
-  |Allow Ingress -> SSH for Apps|any|tcp:IP_of_DiegoBrain:2222|any|Accept|
-	|Allow Ingress -> TCProuter|any|tcp:IP_of_NSX-TCP-LB:5000|any|Accept|
-  |Allow Inside <-> Inside|192.168.10.0/26 192.168.20.0/22 192.168.24.0/22 192.168.28.0/22|192.168.10.0/26 192.168.20.0/22 192.168.24.0/22 192.168.28.0/22|any|Accept|
-  |Allow Egress -> IaaS|192.168.10.0/26|IP_of_vCenter IPs_of_ESXi-Svrs|HTTP, HTTPS|Accept|
-  |Allow Egress -> DNS|192.168.0.0/16|IPs_of_DNS|DNS, DNS-UDP|Accept|
-  |Allow Egress -> NTP|192.168.0.0/16|IPs_of_NTP|NTP|Accept|
-  |Allow Egress -> SYSLOG|192.168.0.0/16|IPs_of_Syslog:514|SYSLOG|Accept|
-  |Allow ICMP|192.168.10.0/26|\*|ICMP|Accept|
-  |Allow Egress -> LDAP|192.168.10.0/26 192.168.20.0/22|IPs_of_LDAP:389|LDAP, LDAP-over-ssl|Accept|
-  |Allow Egress -> All Outbound|192.168.0.0/16|any|any|Accept|
-  |Default Rule|any|any|any|Deny|
+|  Name |  Source |  Destination | Service  |  Action |
+|---|---|---|---|---|
+|Allow Ingress -> Ops Manager|any|IP_of_OpsMgr|SSH, HTTP, HTTPS|Accept|
+|Allow Ingress -> Elastic Runtime|any|IP_of_NSX-LB|HTTP, HTTPS|Accept|
+|Allow Ingress -> SSH for Apps|any|tcp:IP_of_DiegoBrain:2222|any|Accept|
+|Allow Ingress -> TCProuter|any|tcp:IP_of_NSX-TCP-LB:5000|any|Accept|
+|Allow Inside <-> Inside|192.168.10.0/26 192.168.20.0/22 192.168.24.0/22 192.168.28.0/22|192.168.10.0/26 192.168.20.0/22 192.168.24.0/22 192.168.28.0/22|any|Accept|
+|Allow Egress -> IaaS|192.168.10.0/26|IP_of_vCenter IPs_of_ESXi-Svrs|HTTP, HTTPS|Accept|
+|Allow Egress -> DNS|192.168.0.0/16|IPs_of_DNS|DNS, DNS-UDP|Accept|
+|Allow Egress -> NTP|192.168.0.0/16|IPs_of_NTP|NTP|Accept|
+|Allow Egress -> SYSLOG|192.168.0.0/16|IPs_of_Syslog:514|SYSLOG|Accept|
+|Allow ICMP|192.168.10.0/26|\*|ICMP|Accept|
+|Allow Egress -> LDAP|192.168.10.0/26 192.168.20.0/22|IPs_of_LDAP:389|LDAP, LDAP-over-ssl|Accept|
+|Allow Egress -> All Outbound|192.168.0.0/16|any|any|Accept|
+|Default Rule|any|any|any|Deny|
 
 ## Load Balancing Configuration
 
@@ -117,33 +117,33 @@ In this procedure you will marry the NSX Edge’s IP address used for load balan
 
 _Navigate to Edge -> Manage –> Settings -> Certificates & set the following…_
 
-  -	Green Plus button to Add Certificate
-  -	Insert PEM file contents from Elastic Runtime/Networking
-  -	Save the results
+-	Green Plus button to Add Certificate
+-	Insert PEM file contents from Elastic Runtime/Networking
+-	Save the results
 
 #### Enable The Load Balancer
 
 _Navigate to Edge -> Manage –> Load Balancer -> Global Configuration & set the following …_
 
-  -	Edit load balancer global configuration
-  -	Enable Load Balancer
-  -	Enable Acceleration
-  -	Set Logging to desired level (“Info” or greater)
+-	Edit load balancer global configuration
+-	Enable Load Balancer
+-	Enable Acceleration
+-	Set Logging to desired level (“Info” or greater)
 
 #### Create Application Profiles
 The Application Profiles will allow advanced X-Forward options as well as linking to the SSL Certificate.  You will create two Profiles: “PCF-HTTP” & “PCF-HTTPS”.
 
 _Navigate to Edge -> Manage –> Load Balancer -> Global Application Profiles & set the following …_
 
-  -	Create/Edit Profile and make “PCF-HTTP” rule, turning on “Insert X-Forwarded-For HTTP header
-  -	Create/Edit Profile and make “PCF-HTTPS” rule, same as before, but add the service certificate inserted before.
-	- Create/Edit Profile and make “PCF-TCP” rule, with the Type set to TCP.
+-	Create/Edit Profile and make “PCF-HTTP” rule, turning on “Insert X-Forwarded-For HTTP header
+-	Create/Edit Profile and make “PCF-HTTPS” rule, same as before, but add the service certificate inserted before.
+- Create/Edit Profile and make “PCF-TCP” rule, with the Type set to TCP.
 
-  ![Application Profile: HTTP](../static/vsphere/images/app-profile-pcf-http.png)
+![Application Profile: HTTP](../static/vsphere/images/app-profile-pcf-http.png)
 
-  ![Application Profile: HTTPS](../static/vsphere/images/app-profile-pcf-https.png)
+![Application Profile: HTTPS](../static/vsphere/images/app-profile-pcf-https.png)
 
-	![Application Profile: TCP](../static/vsphere/images/app-profile-pcf-tcp.png)
+![Application Profile: TCP](../static/vsphere/images/app-profile-pcf-tcp.png)
 
 #### Create Application Rules
 
@@ -151,7 +151,7 @@ In order for the NSX Edge to perform proper X-Forwarded requests, a few HA Proxy
 
 _Navigate to Edge -> Manage –> Load Balancer -> Application Rules & create the following …_
 
-  -	Copy/paste the table entries below into each field
+-	Copy/paste the table entries below into each field
 
 |Rule Name|Script|
 |---|---|
