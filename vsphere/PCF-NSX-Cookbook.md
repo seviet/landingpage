@@ -100,12 +100,13 @@ The NSX Edge performs a software load balancing function, such as the bundled HA
 
 This step is required for the installation to function properly.
 
-There are five stages to this procedure:
+There are six stages to this procedure:
   1. Import SSL certificates to the Edge for SSL termination
   2. Create Application Profiles in the Load Balancing tab of NSX
   3. Create Application Rules in the Load Balancer
-  4. Create Application Pools for the multiple groups needing load balancing
-  5. Create a virtual server (also known as a VIP) to pool balanced IPs
+  4. Create Service Monitors for each pool type
+  5. Create Application Pools for the multiple groups needing load balancing
+  6. Create a virtual server (also known as a VIP) to pool balanced IPs
 
 What you will need:
 
@@ -161,9 +162,28 @@ _Navigate to Edge -> Manage –> Load Balancer -> Application Rules & create the
 
 ![Application Rules](../static/vsphere/images/lb-app-rules.png)
 
-#### Create Pools of Multi-Element Targets
+#### Create Monitors For Pools
 
-This is the pool of resources that NSX Edge is balancing TO, which are the GoRouters deployed by BOSH Director.  If the IP addresses here don’t match exactly the IP addresses reserved or used for the GoRouters, the pool will not effectively balance.
+NSX ships with several load balancing monitoring types pre-defined. These are for HTTP, HTTPS and TCP. For this installation, we will build new monitors matching the needs of each pool to ensure correct 1:1 monitoring for each pool type.
+
+_Navigate to Edge -> Manage –> Load Balancer -> Service Monitoring_
+
+- Create a new monitor for "http-routers", keep the defaults
+- Set the Type to "HTTP"
+- Create a new monitor for "tcp-routers", keep the defaults
+- Set the type to "HTTP"
+- Set the Method to "GET"
+- Set the URL to "/health"
+- Create a new monitor for "diego-brains", keep the defaults
+- Set the type to "TCP"
+- Create a new monitor for "ert-mysql-proxy", keep the defaults
+- Set the type to "TCP"
+
+These monitors will be selected during the next step when pools are created. A pool and a monitor are matched 1:1.
+
+#### Create Pools of Multi-Element PCF Targets
+
+This is the pool of resources that NSX Edge is balancing *__TO__*, which are the GoRouters deployed by BOSH Director.  If the IP addresses here don’t match exactly the IP addresses reserved or used for the GoRouters, the pool will not effectively balance.
 
 ##### Create Pool for "http-routers"
 
@@ -173,7 +193,7 @@ _Navigate to Edge -> Manage –> Load Balancer -> Pools_
 -	Enter ALL the IP addresses reserved for GoRouters into this pool. If you reserved more addresses than you have GoRouters, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
 -	Note that the port & monitoring are on HTTP port 80; the assumption is that internal traffic from the NSX Edge load balancer to the gorouters is trusted, as it’s on a VXLAN secured within NSX. If using encrypted traffic inside the load balancer, adjust ports accordingly.
   -	Set the Algorithim to “ROUND-ROBIN”
-  -	Set Monitors to “default_tcp_monitor”
+  -	Set Monitors to “http-routers”
 
 ![Router Pool](../static/vsphere/images/router-pool.png)
 
@@ -182,24 +202,24 @@ _Navigate to Edge -> Manage –> Load Balancer -> Pools_
 - If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
 - Enter ALL the IP addresses reserved for TCP Routers into this pool. If you reserved more addresses than you have VMs, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
 - Set the Port to empty (these numbers will vary) and the Monitor Port to 80
-- Set the Algorithm to "ROUND-ROBIN"
-- Set the Monitors to "tcp-routers-monitor"
+	- Set the Algorithm to "ROUND-ROBIN"
+	- Set the Monitors to "tcp-routers"
 
 ##### Create Pool for "diego-brains"
 
 - If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
 - Enter ALL the IP addresses reserved for Diego Brains into this pool. If you reserved more addresses than you have VMs, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
 - Set the Port to 2222 and the Monitor Port to 2222
-- Set the Algorithm to "ROUND-ROBIN"
-- Set the Monitors to "diego-brains-monitor"
+	- Set the Algorithm to "ROUND-ROBIN"
+	- Set the Monitors to "diego-brains"
 
 ##### Create Pool for "ert-mysql-proxy"
 
 - If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
 - Enter the two IP addresses reserved for MySQL-proxy into this pool.
 - Set the Port to 3306 and the Monitor Port to 1936
-- Set the Algorithm to "ROUND-ROBIN"
-- Set the Monitors to "ert-mysql-proxies-monitor"
+	- Set the Algorithm to "ROUND-ROBIN"
+	- Set the Monitors to "ert-mysql-proxies"
 
 #### Create Virtual Servers
 
@@ -228,7 +248,6 @@ _Navigate to Edge -> Manage –> Load Balancer -> Virtual Servers_
 	-	Switch to Advanced Tab on this Virtual Server
 	-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
 		-	option httplog
-		-	option forwardfor
 		-	reqadd X-Forwarded-Proto:\ https
 
 -	Create a new Virtual Server named “SSH-DiegoBrains” and select Application Profile “PCF-HTTPS”
@@ -256,8 +275,8 @@ _NSX will generate a number of DNAT rules based on load balancing configs. These
 
 # Conclusion
 
-It should be noted that the NSX Edge Gateway does also support scenarios where Private RFC subnets & NAT are not utilized for ‘Deployment’ or ‘Infrastructure’ networks, and the guidance in this document can be modified to meet those scenarios.  Additionally, the NSX Edge supports up to 10 Interfaces allowing for more Uplink options if necessary.
+It should be noted that the NSX Edge Gateway also supports scenarios where Private RFC subnets & NAT are not utilized for ‘Deployment’ or ‘Infrastructure’ networks, and the guidance in this document can be modified to meet those scenarios.  Additionally, the NSX Edge supports up to 10 Interfaces allowing for more Uplink options if necessary.
 
-This document is intended to present the reader with the fundamental configuration options of an NSX Edge with PCF.   Its purpose is not to dictate the settings required on every deployment, but instead to empower the NSX Administrator with the ability to have a known good ‘base’ and apply specific security configurations as required.
+This document is intended to present the reader with the fundamental configuration options of an NSX Edge with PCF. Its purpose is not to dictate the settings required on every deployment, but instead to empower the NSX Administrator with the ability to have a known good ‘base’ and apply specific security configurations as required.
 
-With respect to the Private RFC-1918 subnets for PCF Deployment networks.  This architecture was chosen due to it popularity with customers, NSX Edge devices are capable of leveraging OSPF, BGP, & IS-IS to handle dynamic routing of customer and/or public L3 IP space.  That design is out of scope for this document, but is supported by VMware NSX & Pivotal PCF.
+With respect to the Private RFC-1918 subnets for PCF Deployment networks: This architecture was chosen due to it popularity with customers, NSX Edge devices are capable of leveraging ECMP, OSPF, BGP, & IS-IS to handle dynamic routing of customer and/or public L3 IP space.  That design is out of scope for this document, but is supported by VMware NSX & Pivotal PCF.
