@@ -31,6 +31,7 @@ This cookbook will focus on a single site foundation & will make the following d
    -	The “CF Tiles” network will be used for all other deployed Tiles in a PCF installation
 	 - The "Dynamic Services" network will be used by BOSH Director for service tiles
 -	There will be a single service provider (outside) interface on the NSX Edge that will provide Firewall, Load Balancing & NAT/SNAT services.
+- The service provider (outside) interface will be connected to the network backbone in the way that is appropriate to the environment, as either routed or non-routed depending on the design. This cookbook does not cover provisioning of the uplink interface.
 -	Routable IPs should be applied to the service provider (outside) interface of the NSX Edge. It is recommended that 10 consecutive routable IPs be applied to each NSX Edge.
   -	One reserved for NSX use (Controller to Edge I/F)
   -	One for NSX Load Balancer to GoRouters
@@ -81,15 +82,16 @@ This step is not required for the installation to function properly when the fir
   |---|---|---|---|---|
   |Allow Ingress -> Ops Manager|any|IP_of_OpsMgr|SSH, HTTP, HTTPS|Accept|
   |Allow Ingress -> Elastic Runtime|any|IP_of_NSX-LB|HTTP, HTTPS|Accept|
-  |Allow Ingress -> SSH for Apps|any|IP_of_DiegoBrain:2222|any|Accept|
+  |Allow Ingress -> SSH for Apps|any|tcp:IP_of_DiegoBrain:2222|any|Accept|
+	|Allow Ingress -> TCProuter|any|tcp:IP_of_NSX-TCP-LB:5000|any|Accept|
   |Allow Inside <-> Inside|192.168.10.0/26 192.168.20.0/22 192.168.24.0/22 192.168.28.0/22|192.168.10.0/26 192.168.20.0/22 192.168.24.0/22 192.168.28.0/22|any|Accept|
-  |Allow Egress -> IaaS|192.168.10.0/26|IP_of_vCenter IPs_of_ESXi-Svrs|   |Accept|
+  |Allow Egress -> IaaS|192.168.10.0/26|IP_of_vCenter IPs_of_ESXi-Svrs|HTTP, HTTPS|Accept|
   |Allow Egress -> DNS|192.168.0.0/16|IPs_of_DNS|DNS, DNS-UDP|Accept|
   |Allow Egress -> NTP|192.168.0.0/16|IPs_of_NTP|NTP|Accept|
   |Allow Egress -> SYSLOG|192.168.0.0/16|IPs_of_Syslog:514|SYSLOG|Accept|
   |Allow ICMP|192.168.10.0/26|\*|ICMP|Accept|
   |Allow Egress -> LDAP|192.168.10.0/26 192.168.20.0/22|IPs_of_LDAP:389|LDAP, LDAP-over-ssl|Accept|
-  |Allow Egress -> All Outbound|192.168.0.0/16 IP_of_NSX-LB|any|any|Accept|
+  |Allow Egress -> All Outbound|192.168.0.0/16|any|any|Accept|
   |Default Rule|any|any|any|Deny|
 
 ## Load Balancing Configuration
@@ -98,12 +100,12 @@ The NSX Edge performs a software load balancing function, such as the bundled HA
 
 This step is required for the installation to function properly.
 
-There are four stages to this procedure:
-
-  1.	Create Application Profiles in the Load Balancing tab of NSX
-  2.	Create Application Rules in the Load Balancer
-  3.	Create Application Pools of the GoRouter IPs
-  4.	Create a virtual server (also known as a VIP) to pool balanced IPs
+There are five stages to this procedure:
+  1. Import SSL certificates to the Edge for SSL termination
+  2. Create Application Profiles in the Load Balancing tab of NSX
+  3. Create Application Rules in the Load Balancer
+  4. Create Application Pools for the multiple groups needing load balancing
+  5. Create a virtual server (also known as a VIP) to pool balanced IPs
 
 What you will need:
 
@@ -111,14 +113,16 @@ What you will need:
 
 In this procedure you will marry the NSX Edge’s IP address used for load balancing with a series of internal IPs provisioned for GoRouters in PCF. It’s important to know the IPs used for the GoRouters beforehand. These can be pre-selected/reserved prior to deployment (recommended) or discovered after deployment by looking them up in BOSH Director, which will list them in the release information of the Elastic Runtime installation.
 
-#### Import SSL Certificate.  PCF requires SSL termination at the load balancer.
+#### Import SSL Certificate. PCF requires SSL termination at the load balancer.
 
 _Navigate to Edge -> Manage –> Settings -> Certificates & set the following…_
+
   -	Green Plus button to Add Certificate
   -	Insert PEM file contents from Elastic Runtime/Networking
   -	Save the results
 
 #### Enable The Load Balancer
+
 _Navigate to Edge -> Manage –> Load Balancer -> Global Configuration & set the following …_
 
   -	Edit load balancer global configuration
@@ -126,18 +130,22 @@ _Navigate to Edge -> Manage –> Load Balancer -> Global Configuration & set the
   -	Enable Acceleration
   -	Set Logging to desired level (“Info” or greater)
 
-#### Create Application Profiles.  The Application Profiles will allow advanced X-Forward options as well as linking to the SSL Certificate.  You will create two Profiles: “PCF-HTTP” & “PCF-HTTPS”.
+#### Create Application Profiles
+The Application Profiles will allow advanced X-Forward options as well as linking to the SSL Certificate.  You will create two Profiles: “PCF-HTTP” & “PCF-HTTPS”.
 
 _Navigate to Edge -> Manage –> Load Balancer -> Global Application Profiles & set the following …_
 
   -	Create/Edit Profile and make “PCF-HTTP” rule, turning on “Insert X-Forwarded-For HTTP header
   -	Create/Edit Profile and make “PCF-HTTPS” rule, same as before, but add the service certificate inserted before.
+	- Create/Edit Profile and make “PCF-TCP” rule, with the Type set to TCP.
 
   ![Application Profile: HTTP](../static/vsphere/images/app-profile-pcf-http.png)
 
   ![Application Profile: HTTPS](../static/vsphere/images/app-profile-pcf-https.png)
 
-#### Create Application Rules.
+	![Application Profile: TCP](../static/vsphere/images/app-profile-pcf-tcp.png)
+
+#### Create Application Rules
 
 In order for the NSX Edge to perform proper X-Forwarded requests, a few HA Proxy directives need to be added to NSX Edge Application Rules.  NSX will support most directives that “HA Proxy” will support.
 
@@ -153,9 +161,11 @@ _Navigate to Edge -> Manage –> Load Balancer -> Application Rules & create the
 
 ![Application Rules](../static/vsphere/images/lb-app-rules.png)
 
-#### Create “http-routers” Pool.
+#### Create Pools of Multi-element Targets
 
 This is the pool of resources that NSX Edge is balancing TO, which are the GoRouters deployed by BOSH Director.  If the IP addresses here don’t match exactly the IP addresses reserved or used for the GoRouters, the pool will not effectively balance.
+
+##### Create Pool for "http-routers"
 
 _Navigate to Edge -> Manage –> Load Balancer -> Pools_
 
@@ -165,9 +175,19 @@ _Navigate to Edge -> Manage –> Load Balancer -> Pools_
     -	Set the Algorithim to “ROUND-ROBIN”
     -	Set Monitors to “default_tcp_monitor”
 
-	![Router Pool](../static/vsphere/images/router-pool.png)
+![Router Pool](../static/vsphere/images/router-pool.png)
 
-#### Create Virtual Servers.
+##### Create Pool for "tcp-routers"
+
+- If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
+- Enter ALL the IP addresses reserved for TCP Routers into this pool. If you reserved more addresses than you have VMs, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
+- Set the Port to empty (these numbers will vary) and the Monitor Port to 80
+
+##### Create Pool for "diego-brains"
+
+##### Create Pool for "ert-mysql-proxy"
+
+#### Create Virtual Servers
 
 This is the VIP, or virtual IP that the load balancer will use to represent the pool of gorouters to the outside world. This also links the Application Policy, Application Rules, and backend pools to provide PCF load balancing services.  This is the interface that the load balancer balances FROM. You will create 3 Virtual Servers.
 
@@ -212,11 +232,11 @@ _This step is required for the installation to function properly._
 |Action|Applied on Interface|Original IP|Original Port|Translated IP|Translated Port|Protocol|Description|
 |---|---|---|---|---|---|---|---|
 |SNAT|uplink|192.168.0.0/16|any|IP_of_PCF|any|any|All Nets Egress|
-|DNAT|uplink|IP_of_OpsMgr|22|192.168.10.OpsMgr|22|tcp|SSH OpsMgr|
-|DNAT|uplink|IP_of_OpsMgr|80|192.168.10.OpsMgr|80|tcp|HTTP OpsMgr|
-|DNAT|uplink|IP_of_OpsMgr|443|192.168.10.OpsMgr|443|tcp|HTTPS OpsMgr|
+|DNAT|uplink|IP_of_OpsMgr|any|192.168.10.OpsMgr|any|tcp|OpsMgr Mask|
 
 _This function is not required if routable IP address space is used on the Tenant Side of the NSX Edge. At that point, the NSX Edge simply performs routing between the address segments._
+
+_NSX will generate a number of DNAT rules based on load balancing configs. These can safely be ignored._
 
 # Conclusion
 
