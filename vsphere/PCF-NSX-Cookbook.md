@@ -161,7 +161,7 @@ _Navigate to Edge -> Manage –> Load Balancer -> Application Rules & create the
 
 ![Application Rules](../static/vsphere/images/lb-app-rules.png)
 
-#### Create Pools of Multi-element Targets
+#### Create Pools of Multi-Element Targets
 
 This is the pool of resources that NSX Edge is balancing TO, which are the GoRouters deployed by BOSH Director.  If the IP addresses here don’t match exactly the IP addresses reserved or used for the GoRouters, the pool will not effectively balance.
 
@@ -169,11 +169,11 @@ This is the pool of resources that NSX Edge is balancing TO, which are the GoRou
 
 _Navigate to Edge -> Manage –> Load Balancer -> Pools_
 
-  -	If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
-  -	Enter ALL the IP addresses reserved for GoRouters into this pool. If you reserved more addresses than you have GoRouters, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
-  -	Note that the port & monitoring are on HTTP port 80; the assumption is that internal traffic from the NSX Edge load balancer to the gorouters is trusted, as it’s on a VXLAN secured within NSX. If using encrypted traffic inside the load balancer, adjust ports accordingly.
-    -	Set the Algorithim to “ROUND-ROBIN”
-    -	Set Monitors to “default_tcp_monitor”
+-	If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
+-	Enter ALL the IP addresses reserved for GoRouters into this pool. If you reserved more addresses than you have GoRouters, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
+-	Note that the port & monitoring are on HTTP port 80; the assumption is that internal traffic from the NSX Edge load balancer to the gorouters is trusted, as it’s on a VXLAN secured within NSX. If using encrypted traffic inside the load balancer, adjust ports accordingly.
+  -	Set the Algorithim to “ROUND-ROBIN”
+  -	Set Monitors to “default_tcp_monitor”
 
 ![Router Pool](../static/vsphere/images/router-pool.png)
 
@@ -182,44 +182,60 @@ _Navigate to Edge -> Manage –> Load Balancer -> Pools_
 - If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
 - Enter ALL the IP addresses reserved for TCP Routers into this pool. If you reserved more addresses than you have VMs, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
 - Set the Port to empty (these numbers will vary) and the Monitor Port to 80
+- Set the Algorithm to "ROUND-ROBIN"
+- Set the Monitors to "tcp-routers-monitor"
 
 ##### Create Pool for "diego-brains"
 
+- If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
+- Enter ALL the IP addresses reserved for Diego Brains into this pool. If you reserved more addresses than you have VMs, enter the addresses anyway and the load balancer will just ignore the missing resources as “down”.
+- Set the Port to 2222 and the Monitor Port to 2222
+- Set the Algorithm to "ROUND-ROBIN"
+- Set the Monitors to "diego-brains-monitor"
+
 ##### Create Pool for "ert-mysql-proxy"
+
+- If following the Pivotal vSphere Reference Architecture, these IPs will be in the 192.168.20.0/22 address space.
+- Enter the two IP addresses reserved for MySQL-proxy into this pool.
+- Set the Port to 3306 and the Monitor Port to 1936
+- Set the Algorithm to "ROUND-ROBIN"
+- Set the Monitors to "ert-mysql-proxies-monitor"
 
 #### Create Virtual Servers
 
-This is the VIP, or virtual IP that the load balancer will use to represent the pool of gorouters to the outside world. This also links the Application Policy, Application Rules, and backend pools to provide PCF load balancing services.  This is the interface that the load balancer balances FROM. You will create 3 Virtual Servers.
+This is the VIP, or Virtual IP that the load balancer will use to represent the pool of gorouters to the outside world. This also links the Application Policy, Application Rules, and backend pools to provide PCF load balancing services.  This is the interface that the load balancer balances FROM. You will create 3 Virtual Servers.
+
+There will be a Virtual Server for each pool created above.
 
 _Navigate to Edge -> Manage –> Load Balancer -> Virtual Servers_
 
-	-	Select an IP address from the available routable address space allocated to the NSX Edge (see section General Overview above about reserved IPs)
-	-	Create a new Virtual Server named “GoRtr-HTTP” and select Application Profile “PCF-HTTP”
-		-	Use “Select IP Address” to select the IP to use as a VIP on the uplink interface
-		-	Set Protocol to match the Application Profile protocol (HTTP) and set Port to match the protocol (80)
-		-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
-		-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
-		-	Switch to Advanced Tab on this Virtual Server
-		-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
-			-	option httplog
-			-	reqadd X-Forwarded-Proto:\ http
+-	Select an IP address from the available routable address space allocated to the NSX Edge (see section General Overview above about reserved IPs)
+-	Create a new Virtual Server named “GoRtr-HTTP” and select Application Profile “PCF-HTTP”
+	-	Use “Select IP Address” to select the IP to use as a VIP on the uplink interface
+	-	Set Protocol to match the Application Profile protocol (HTTP) and set Port to match the protocol (80)
+	-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
+	-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+	-	Switch to Advanced Tab on this Virtual Server
+	-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
+		-	option httplog
+		-	reqadd X-Forwarded-Proto:\ http
 
-		-	Create a new Virtual Server named “GoRtr-HTTPS” and select Application Profile “PCF-HTTPS”
-			-	Use “Select IP Address” to select the **same IP** to use as a VIP on the uplink interface
-			-	Set Protocol to match the Application Profile protocol (HTTPS) and set Port to match the protocol (443)
-			-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
-			-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
-			-	Switch to Advanced Tab on this Virtual Server
-			-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
-				-	option httplog
-				-	option forwardfor
-				-	reqadd X-Forwarded-Proto:\ https
+-	Create a new Virtual Server named “GoRtr-HTTPS” and select Application Profile “PCF-HTTPS”
+	-	Use “Select IP Address” to select the **same IP** to use as a VIP on the uplink interface
+	-	Set Protocol to match the Application Profile protocol (HTTPS) and set Port to match the protocol (443)
+	-	Set Default Pool to the pool name set in the previous step (http-routers). This connects this VIP to that pool of resources being balanced to.
+	-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+	-	Switch to Advanced Tab on this Virtual Server
+	-	Use the green plus to add/attach three Application Rules to this Virtual Server: (Be careful to match protocol rules to the protocol VIP- HTTP to HTTP and HTTPS to HTTPS!)
+		-	option httplog
+		-	option forwardfor
+		-	reqadd X-Forwarded-Proto:\ https
 
-		-	Create a new Virtual Server named “SSH-DiegoBrains” and select Application Profile “PCF-HTTPS”
-			-	Use “Select IP Address” to select the same IP to use as a VIP on the uplink interface if you want to use this address for SSH access to apps. If not, select a different IP to use as the VIP.
-			-	Set Protocol to TCP and set Port to 2222.
-			-	Set Default Pool to the pool name set in the previous step (diego-brains). This connects this VIP to that pool of resources being balanced to.
-			-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
+-	Create a new Virtual Server named “SSH-DiegoBrains” and select Application Profile “PCF-HTTPS”
+	-	Use “Select IP Address” to select the same IP to use as a VIP on the uplink interface if you want to use this address for SSH access to apps. If not, select a different IP to use as the VIP.
+	-	Set Protocol to TCP and set Port to 2222.
+	-	Set Default Pool to the pool name set in the previous step (diego-brains). This connects this VIP to that pool of resources being balanced to.
+	-	Ignore Connection Limit and Connection Rate Limit unless these limits are desired.
 
 ![VIPs](../static/vsphere/images/vip-3.png)
 
