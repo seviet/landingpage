@@ -116,6 +116,8 @@ In this procedure you will marry the NSX Edge’s IP address used for load balan
 
 #### Import SSL Certificate. PCF requires SSL termination at the load balancer.
 
+*__Wait A Tick!__* Do you intend to pass SSL termination thru the load balancer directly to the gorouters? If so, you can skip the step below and just check "Enable SSL Passthru" on the HTTPS Application Profile.
+
 _Navigate to Edge -> Manage –> Settings -> Certificates & set the following…_
 
 -	Green Plus button to Add Certificate
@@ -127,12 +129,12 @@ _Navigate to Edge -> Manage –> Settings -> Certificates & set the following…
 _Navigate to Edge -> Manage –> Load Balancer -> Global Configuration & set the following …_
 
 -	Edit load balancer global configuration
--	Enable Load Balancer
--	Enable Acceleration
--	Set Logging to desired level (“Info” or greater)
+-	Enable load balancer
+-	Enable acceleration
+-	Set logging to desired level (“Info” or greater)
 
 #### Create Application Profiles
-The Application Profiles will allow advanced X-Forward options as well as linking to the SSL Certificate.  You will create two Profiles: “PCF-HTTP” & “PCF-HTTPS”.
+The Application Profiles will allow advanced X-Forward options as well as linking to the SSL Certificate.  You will create three Profiles: “PCF-HTTP”, “PCF-HTTPS” & "PCF-TCP".
 
 _Navigate to Edge -> Manage –> Load Balancer -> Global Application Profiles & set the following …_
 
