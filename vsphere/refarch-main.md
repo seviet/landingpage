@@ -105,11 +105,11 @@ On the tenant side, each interface on the Edge that is defined will act as the I
 - "Dynamic Services" network: 192.168.28.0/22, Gateway at .1
 - _Future Use: "Services-B" network: 192.168.32.0/22, and so on..._
 
-![Network Example](../static/vsphere/images/PCF RefArch vSphere NSX v4 Edge Exploded.png)
+![Network Example](../static/vsphere/images/PCF%20RefArch%20vSphere%20NSX%20v4%20Edge%20Exploded.png)
 
 vSphere NSX Logical Switches are recommended for use with the above networks. This approach avoids VLAN consumption while benefiting from the overlay capability NSX enables. NSX can create a DPG (Distributed Port Group) on a DVS (Distributed Virtual Switch) for each interface provisioned on the NSX Edge (as shown in the below diagram). Alternatively, port groups on a DVS with VLANs tagged on each can be used for the networks above.
 
-![Port Groups](../static/vsphere/images/PCF RefArch vSphere NSX v4 Port Groups.png)
+![Port Groups](../static/vsphere/images/PCF%20RefArch%20vSphere%20NSX%20v4%20Port%20Groups.png)
 
 #### High Performance Variants
 
@@ -131,7 +131,7 @@ In the absence of VMware NSX SDN technology, the PCF installation on vSphere fol
 
 The more traditional approach without SDN would be to deploy a single VLAN for use with all of PCF, or possibly a pair of VLANs (one for infrastructure and one for PCF). As VLAN capacity is frequently limited and scarce, this design seeks to limit the need for VLANs to a functional minimum.
 
-![PCF without SDN Model](../static/vsphere/images/PCF RefArch vSphere noNSX.png)
+![PCF without SDN Model](../static/vsphere/images/PCF%20RefArch%20vSphere%20noNSX.png)
 
 In this example, the functions of firewall and load balancer have been moved outside the of vSphere space to generic devices assumed to be available in the datacenter. The PCF installation is now bound to two port groups provided by a DVS on ESXi, each one aligned to a key use case:
 
@@ -146,7 +146,7 @@ It's still valid to deploy all the networks shown in the original design, so if 
 
 Some desire to start with PCF aligned to fewer resources than the standard (above) calls for, so the starting point for that is a single Cluster. If you are working with at least three ESXi hosts, the recommended guidance is still to setup in three Clusters, even with one host in each (such that the HA comes from the PasS, not the IaaS), but for less than that, place all available hosts into a single Cluster with DRS and HA enabled.
 
-  ![PCF Single Cluster Model](../static/vsphere/images/PCF RefArch vSphere oneCluster.png)
+  ![PCF Single Cluster Model](../static/vsphere/images/PCF%20RefArch%20vSphere%20oneCluster.png)
 
 A two Cluster configuration has little value compared to a single or triple cluster configuration. While a pair of Clusters has symmetry in vSphere, PCF always seeks to deploy resources in odd numbers, so a two Cluster configuration forces the operator into a two AZ alignment for odd (three) elements, which is far from ideal.
 
@@ -168,7 +168,7 @@ TL;DR PCF Multi-Datacenter is a plausible approach that's flawed in one way or a
 
 In this approach, the architect is treating two sites as the same logical capacity and is building Clusters from components from both sites at the same time. Given four hosts, two might come from "East" and two might come from "West". In vSphere, these appear to form a four host Cluster. Networking is applied such that all hosts see the same networks thru stretched layer 2 application or perhaps a SDN solution such as NSX is being used to tunnel L2 over L3.
 
-  ![PCF Multi-DC Stretched](../static/vsphere/images/PCF RefArch vSphere Multi-DC.png)
+  ![PCF Multi-DC Stretched](../static/vsphere/images/PCF%20RefArch%20vSphere%20Multi-DC.png)
 
 In terms of PCF, the Cluster is an AZ and BOSH has no sense of some of that capacity coming from different places. Thus, these hosts must be able to operate such that there's no practical difference between the networks and storage they attach to, in terms of latency and connectivity.
 
